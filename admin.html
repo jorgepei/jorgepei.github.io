@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>geSolar · Gestión</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--gris-m:#4E4952;--azul:#4F70BF;--azul-o:#3D5AA3;--azul-c:#E7EDF9;--fondo:#F4F5F8;--tinta:#2E2B31;--gris:#6A6670;--linea:#DCDFE6;
+  --rojo:#C23B28;--rojo-c:#FBE7E3;--verde:#1F8455;--verde-c:#E0F2E9;--naranja:#D9700B;--naranja-c:#FCEBD8;--ambar-c:#FFF1C9;--lado:236px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--fondo);color:var(--tinta);font:400 15px/1.45 'Barlow',system-ui,'Segoe UI',Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--azul);outline-offset:2px}
+.num{font-family:'Barlow Condensed','Barlow',sans-serif;font-variant-numeric:tabular-nums}
+a{color:var(--azul)}
+
+/* Estructura */
+.shell{display:grid;grid-template-columns:var(--lado) 1fr;min-height:100vh}
+aside{background:#fff;border-right:1px solid var(--linea);padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+aside img{width:160px;margin:4px 8px 24px}
+aside nav{display:grid;gap:2px}
+aside nav button{display:flex;justify-content:space-between;align-items:center;text-align:left;border:0;background:none;padding:10px 12px;border-radius:9px;font-weight:600;color:var(--gris);cursor:pointer}
+aside nav button:hover{background:var(--fondo);color:var(--tinta)}
+aside nav button[aria-current]{background:var(--azul-c);color:var(--azul-o)}
+aside nav .n{background:var(--rojo);color:#fff;border-radius:9px;font-size:12px;min-width:20px;padding:0 6px;text-align:center}
+aside .pie{margin-top:auto;padding:12px;border-top:1px solid var(--linea);font-size:14px;color:var(--gris)}
+aside .pie b{display:block;color:var(--tinta)}
+aside .pie button{border:0;background:none;color:var(--azul);padding:0;margin-top:6px;font-weight:600;cursor:pointer}
+main{padding:26px 32px 60px;min-width:0}
+.cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.cab h1{margin:0;font-size:28px;line-height:1.1}
+.cab p{margin:4px 0 0;color:var(--gris)}
+.acciones{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+h2{font-size:17px;margin:0 0 10px}
+
+/* Controles */
+.btn{border:0;border-radius:10px;min-height:40px;padding:0 16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.b-azul{background:var(--azul);color:#fff}.b-azul:hover{background:var(--azul-o)}
+.b-linea{background:#fff;border:1px solid var(--linea)}.b-linea:hover{border-color:#BFC5D0}
+.b-osc{background:var(--gris-m);color:#fff}
+.b-rojo{background:#fff;border:1px solid var(--linea);color:var(--rojo)}
+.b-peq{min-height:32px;padding:0 10px;font-size:14px;border-radius:8px}
+input,select,textarea{border:1px solid var(--linea);border-radius:9px;padding:8px 10px;background:#fff;min-height:40px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--azul-c);border-color:var(--azul)}
+.buscar{width:240px}
+.seg{display:inline-flex;background:#E7E9EE;border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:8px;font-weight:600;color:var(--gris);cursor:pointer}
+.seg button[aria-pressed=true]{background:#fff;color:var(--azul-o);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* Tarjetas y tablas */
+.card{background:#fff;border:1px solid var(--linea);border-radius:12px}
+.card.pad{padding:16px 18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{padding:14px 16px;background:#fff;border:1px solid var(--linea);border-radius:12px;text-align:left;cursor:pointer}
+.kpi b{display:block;font-size:34px;line-height:1;font-family:'Barlow Condensed',sans-serif}
+.kpi span{color:var(--gris);font-size:14px}
+.kpi.alerta b{color:var(--rojo)}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.tabla-w{overflow:auto;background:#fff;border:1px solid var(--linea);border-radius:12px}
+table{width:100%;border-collapse:collapse}
+th{position:sticky;top:0;background:#FAFAFC;text-align:left;font-size:13px;font-weight:600;color:var(--gris);padding:10px 12px;border-bottom:1px solid var(--linea);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid #ECEEF2;vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr.clic{cursor:pointer}
+tbody tr.clic:hover{background:#F7F8FB}
+td.r,th.r{text-align:right}
+td .sub{display:block;color:var(--gris);font-size:13px}
+.trunc{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vacio{padding:30px;text-align:center;color:var(--gris)}
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:13px;font-weight:600;background:#ECEEF2;color:var(--gris-m);white-space:nowrap}
+.chip.azul{background:var(--azul-c);color:var(--azul-o)}.chip.verde{background:var(--verde-c);color:var(--verde)}
+.chip.rojo{background:var(--rojo-c);color:var(--rojo)}.chip.naranja{background:var(--naranja-c);color:#9A4F06}
+.chip.ambar{background:var(--ambar-c);color:#7A5A00}.chip.osc{background:var(--gris-m);color:#fff}
+.alerta-l{padding:10px 12px;border-radius:9px;background:var(--rojo-c);color:#7F2214;margin-bottom:8px}
+.alerta-l.n{background:var(--naranja-c);color:#7A3E05}
+.barra{height:6px;background:#E7E9EE;border-radius:4px;overflow:hidden;margin-top:4px;min-width:70px}
+.barra i{display:block;height:100%;background:var(--azul)}.barra i.pasado{background:var(--rojo)}
+
+/* Planificación */
+.plan{table-layout:fixed;min-width:1050px}
+.plan th.dia{text-align:center}
+.plan th.hoy{color:var(--azul-o);background:var(--azul-c)}
+.plan td{height:90px;padding:6px;border-right:1px solid #ECEEF2}
+.plan td.persona{width:150px;font-weight:600;background:#FAFAFC}
+.plan td.finde{background:#FBFBFC}
+.plan td.celda{cursor:pointer}
+.plan td.celda:hover{background:#F5F7FC}
+.plan .mas{display:block;text-align:center;color:#B6BCC8;font-size:20px;line-height:1;margin-top:4px}
+.tchip{display:block;width:100%;text-align:left;border:0;border-left:4px solid var(--azul);background:var(--azul-c);border-radius:6px;padding:5px 7px;margin-bottom:5px;font-size:13px;line-height:1.25;cursor:pointer}
+.tchip small{display:block;color:var(--gris)}
+.tchip.alta{border-left-color:var(--naranja);background:var(--naranja-c)}
+.tchip.urgente{border-left-color:var(--rojo);background:var(--rojo-c)}
+.tchip.hecha{background:#F0F1F4;border-left-color:#BFC5D0;color:var(--gris);text-decoration:line-through}
+.tchip.atras{outline:2px solid var(--rojo)}
+
+/* Calendario de ausencias */
+.cal-aus{table-layout:fixed;min-width:1100px}
+.cal-aus th,.cal-aus td{padding:4px 2px;text-align:center;font-size:12px;border-right:1px solid #F0F1F4}
+.cal-aus td.persona,.cal-aus th.persona{width:150px;text-align:left;padding-left:10px;font-size:14px}
+.cal-aus .fd{background:#F7F7F9}
+.cal-aus .a{background:var(--azul);color:#fff;border-radius:3px}
+.cal-aus .p{background:var(--ambar-c);outline:1px dashed #B98500}
+.cal-aus .b{background:var(--rojo-c)}
+
+/* Modal */
+.velo{position:fixed;inset:0;background:rgba(30,28,33,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow:auto;z-index:50}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal.ancho{max-width:1000px}
+.modal-cab{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--linea)}
+.modal-cab h3{margin:0;font-size:20px}
+.modal-cab button{border:0;background:var(--fondo);width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer}
+.modal-cuerpo{padding:18px 20px}
+.modal-pie{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--linea)}
+.form{display:grid;grid-template-columns:repeat(6,1fr);gap:12px 14px}
+.form label{display:block;font-weight:600;font-size:13px;margin-bottom:4px;color:var(--gris-m)}
+.form .c2{grid-column:span 2}.form .c3{grid-column:span 3}.form .c6{grid-column:span 6}
+.form input,.form select,.form textarea{width:100%}
+.form textarea{min-height:80px;resize:vertical}
+.form h4{grid-column:span 6;margin:8px 0 0;font-size:14px;color:var(--azul-o);border-bottom:1px solid var(--linea);padding-bottom:4px}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.checks label{display:flex;align-items:center;gap:6px;border:1px solid var(--linea);border-radius:8px;padding:6px 10px;font-weight:500;margin:0;cursor:pointer}
+.checks input{width:auto;min-height:0}
+.error{color:var(--rojo);font-weight:600}
+.cols{display:grid;grid-template-columns:3fr 2fr;gap:20px}
+.lista-s{display:grid;gap:6px;max-height:260px;overflow:auto}
+.lista-s div{padding:8px 10px;border:1px solid #ECEEF2;border-radius:8px;font-size:14px}
+.lista-s small{color:var(--gris)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gris-m);color:#fff;padding:11px 18px;border-radius:10px;display:none;z-index:60;font-weight:500}
+#toast.ver{display:block}#toast.mal{background:var(--rojo)}
+
+/* Acceso */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff}
+.login form{width:340px}
+.login img{width:260px;display:block;margin:0 auto 6px}
+.login p{text-align:center;color:var(--gris);margin:0 0 24px}
+.login label{display:block;font-weight:600;font-size:14px;margin:14px 0 5px}
+.login input{width:100%;min-height:46px}
+.login .btn{width:100%;justify-content:center;min-height:48px;margin-top:20px;font-size:16px}
+.cargando{padding:60px;text-align:center;color:var(--gris)}
+@media (max-width:900px){.shell{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}aside img{width:110px;margin:0 10px 0 0}aside nav{display:flex;flex-wrap:wrap}aside .pie{border:0;margin:0;padding:0 8px}.dos,.cols{grid-template-columns:1fr}main{padding:18px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const CFG = window.APP_CONFIG || {}, API_URL = CFG.API_URL || '';
+const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = { get(k, d = null) { try { const v = localStorage.getItem('st_' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('st_' + k, JSON.stringify(v)); } catch {} }, del(k) { try { localStorage.removeItem('st_' + k); } catch {} } };
+const pad = n => String(n).padStart(2, '0');
+const clave = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const hoy = () => clave(new Date());
+const aF = f => new Date(String(f).length === 10 ? f + 'T12:00:00' : f);
+const fC = f => f ? aF(f).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
+const fCA = f => f ? aF(f).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+const hora = iso => { const d = new Date(iso); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const hm = m => { m = Math.max(0, Math.round(m || 0)); return Math.floor(m / 60) + ':' + pad(m % 60); };
+const n1 = n => Number(n || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 });
+const euro = n => Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+const uuid = () => crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + Math.random().toString(16).slice(2);
+const mayus = t => t.charAt(0).toUpperCase() + t.slice(1);
+const mapa = (la, ln) => `https://www.google.com/maps/search/?api=1&query=${la},${ln}`;
+
+const E_OBRA = { planificada: ['Planificada', 'ambar'], 'en curso': ['En curso', 'azul'], finalizada: ['Finalizada', 'verde'], facturada: ['Facturada', ''] };
+const E_AVISO = { nuevo: ['Nuevo', 'rojo'], asignado: ['Asignado', 'azul'], 'en curso': ['En curso', 'osc'], resuelto: ['Resuelto', 'verde'], cerrado: ['Cerrado', ''] };
+const PRIO = { urgente: ['Urgente', 'rojo'], alta: ['Alta', 'naranja'], normal: ['Normal', ''], baja: ['Baja', ''] };
+const T_AVISO = { 'avería': 'Avería', mantenimiento: 'Mantenimiento', limpieza: 'Limpieza', 'garantía': 'Garantía', consulta: 'Consulta', otro: 'Otro' };
+const T_AUS = { vacaciones: 'Vacaciones', 'asuntos propios': 'Asuntos propios', permiso: 'Permiso', baja: 'Baja médica' };
+const chip = (m, k) => { const v = m[k] || [k, '']; return `<span class="chip ${v[1]}">${esc(v[0])}</span>`; };
+const opciones = (m, sel) => Object.entries(m).map(([k, v]) => `<option value="${esc(k)}" ${k === sel ? 'selected' : ''}>${esc(Array.isArray(v) ? v[0] : v)}</option>`).join('');
+
+const S = { token: LS.get('token'), user: LS.get('user'), vista: location.hash.slice(1) || 'resumen', cache: {} };
+
+/* Servidor */
+class ApiError extends Error {}
+async function api(action, data = {}) {
+  let r;
+  try { r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S.token, ...data }) }); }
+  catch { throw new Error('No hay conexión con el servidor.'); }
+  let j; try { j = await r.json(); } catch { throw new Error('El servidor no ha respondido bien. Revisa la URL en config.js.'); }
+  if (!j.ok) { if (j.error === 'SESION') { salir(); throw new ApiError('Tu sesión ha caducado.'); } throw new ApiError(j.error); }
+  return j.data;
+}
+async function usuarios(forzar) { if (forzar || !S.cache.usuarios) S.cache.usuarios = await api('usuarios'); return S.cache.usuarios; }
+const activos = l => l.filter(u => u.activo);
+
+let tT;
+function toast(m, mal) { const t = $('#toast'); t.textContent = m; t.className = 'ver' + (mal ? ' mal' : ''); clearTimeout(tT); tT = setTimeout(() => t.className = '', mal ? 5000 : 2800); }
+
+/* Ventanas */
+function modal(titulo, cuerpo, { ancho = false, pie = '' } = {}) {
+  cerrarModal();
+  const v = document.createElement('div'); v.className = 'velo';
+  v.innerHTML = `<div class="modal ${ancho ? 'ancho' : ''}" role="dialog" aria-modal="true" aria-label="${esc(titulo)}">
+    <div class="modal-cab"><h3>${esc(titulo)}</h3><button aria-label="Cerrar" data-x>×</button></div>
+    <div class="modal-cuerpo">${cuerpo}</div>${pie ? `<div class="modal-pie">${pie}</div>` : ''}</div>`;
+  v.addEventListener('mousedown', e => { if (e.target === v) cerrarModal(); });
+  $('[data-x]', v).onclick = cerrarModal;
+  document.body.appendChild(v);
+  const f = $('input,select,textarea', v); if (f) setTimeout(() => f.focus(), 30);
+  return v;
+}
+function cerrarModal() { $$('.velo').forEach(x => x.remove()); }
+addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
+function confirmar(texto, si = 'Confirmar') {
+  return new Promise(res => {
+    const v = modal('¿Seguro?', `<p>${esc(texto)}</p>`, { pie: `<button class="btn b-linea" data-no>Cancelar</button><button class="btn b-osc" data-si>${esc(si)}</button>` });
+    $('[data-no]', v).onclick = () => { cerrarModal(); res(false); };
+    $('[data-si]', v).onclick = () => { cerrarModal(); res(true); };
+  });
+}
+/** Conecta el botón de guardar de una ventana con su formulario. */
+function alGuardar(v, fn) {
+  const b = $('[data-guardar]', v), f = $('form', v), err = $('.error', v);
+  const go = async e => {
+    if (e) e.preventDefault();
+    if (!f.reportValidity()) return;
+    const t = b.textContent; b.disabled = true; b.textContent = 'Guardando…'; err.textContent = '';
+    try { await fn(Object.fromEntries(new FormData(f)), f); }
+    catch (x) { err.textContent = x.message; b.disabled = false; b.textContent = t; }
+  };
+  b.onclick = go; f.onsubmit = go;
+}
+
+/* Acceso */
+function vLogin(msg = '') {
+  const falta = !API_URL || API_URL.includes('PEGA_AQUI');
+  $('#root').innerHTML = `<div class="login"><form id="fl">
+    <img src="logo.png" alt="geSolar energy solutions"><p>Panel de gestión</p>
+    ${falta ? '<div class="alerta-l">Falta la URL del servidor en config.js.</div>' : ''}
+    <label for="u">Usuario</label><input id="u" name="usuario" autocomplete="username" required value="${esc(LS.get('ultimoUsuario', ''))}">
+    <label for="p">PIN</label><input id="p" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+    <button class="btn b-azul" type="submit">Entrar</button><p class="error" style="margin-top:12px">${esc(msg)}</p></form></div>`;
+  $('#fl').onsubmit = async e => {
+    e.preventDefault(); const d = Object.fromEntries(new FormData(e.target)), b = $('button', e.target);
+    b.disabled = true; b.textContent = 'Entrando…';
+    try {
+      const r = await api('login', d);
+      if (r.usuario.rol !== 'admin') return vLogin('Este panel es solo para administradores. Los operarios usan la app del móvil.');
+      S.token = r.token; S.user = r.usuario; LS.set('token', r.token); LS.set('user', r.usuario); LS.set('ultimoUsuario', d.usuario);
+      pintar();
+    } catch (x) { vLogin(x.message); }
+  };
+}
+function salir() { LS.del('token'); LS.del('user'); S.token = null; S.user = null; S.cache = {}; vLogin(); }
+
+/* Estructura */
+const SECCIONES = [['resumen', 'Resumen'], ['planificacion', 'Planificación'], ['obras', 'Obras'], ['avisos', 'Avisos'], ['ausencias', 'Ausencias'], ['jornada', 'Registro de jornada'], ['furgonetas', 'Furgonetas'], ['equipo', 'Equipo']];
+function pintar() {
+  if (!S.token || !S.user) return vLogin();
+  if (S.user.rol !== 'admin') return vLogin('Este panel es solo para administradores.');
+  $('#root').innerHTML = `<div class="shell"><aside><img src="logo.png" alt="geSolar">
+    <nav aria-label="Secciones">${SECCIONES.map(([k, t]) => `<button data-v="${k}">${t}<span class="n" id="n-${k}" hidden></span></button>`).join('')}</nav>
+    <div class="pie"><b>${esc(S.user.nombre)}</b>Administrador<br><a href="index.html">Abrir la app móvil</a><br><button id="salir">Cerrar sesión</button></div></aside>
+    <main id="main"></main></div>`;
+  $$('[data-v]').forEach(b => b.onclick = () => ir(b.dataset.v));
+  $('#salir').onclick = salir;
+  ir(S.vista, true);
+}
+const VISTAS = {};
+async function ir(v, inicial) {
+  if (!VISTAS[v]) v = 'resumen';
+  S.vista = v; if (!inicial || location.hash.slice(1) !== v) history.replaceState(null, '', '#' + v);
+  $$('[data-v]').forEach(b => b.dataset.v === v ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+  const m = $('#main'); m.innerHTML = '<div class="cargando">Cargando…</div>';
+  try { await VISTAS[v](m); } catch (e) { m.innerHTML = `<div class="card vacio">${esc(e.message)}<br><br><button class="btn b-azul" onclick="ir(S.vista)">Reintentar</button></div>`; }
+}
+const recargar = () => ir(S.vista);
+function contador(id, n) { const e = $('#n-' + id); if (e) { e.hidden = !n; e.textContent = n || ''; } }
+const cab = (t, sub, acc = '') => `<div class="cab"><div><h1>${esc(t)}</h1>${sub ? `<p>${sub}</p>` : ''}</div><div class="acciones">${acc}</div></div>`;
+
+/* ───── Resumen ───── */
+VISTAS.resumen = async m => {
+  const [p, eq] = await Promise.all([api('panel'), api('resumenEquipo')]);
+  const atr = eq.reduce((s, x) => s + x.atrasadas, 0);
+  contador('ausencias', p.ausencias.length); contador('avisos', p.avisos.sinAsignar);
+  m.innerHTML = cab('Resumen', mayus(new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }))) + `
+    <div class="kpis">
+      <button class="kpi" data-ir="jornada"><b>${p.trabajando.length}<small style="font-size:18px;color:var(--gris)"> / ${p.plantilla}</small></b><span>fichados ahora</span></button>
+      <button class="kpi" data-ir="obras"><b>${p.obrasEnCurso}</b><span>obras en curso</span></button>
+      <button class="kpi ${p.avisos.urgentes ? 'alerta' : ''}" data-ir="avisos"><b>${p.avisos.abiertos}</b><span>avisos abiertos${p.avisos.urgentes ? `, ${p.avisos.urgentes} urgente${p.avisos.urgentes > 1 ? 's' : ''}` : ''}</span></button>
+      <button class="kpi ${p.avisos.sinAsignar ? 'alerta' : ''}" data-ir="avisos"><b>${p.avisos.sinAsignar}</b><span>avisos sin asignar</span></button>
+      <button class="kpi ${atr ? 'alerta' : ''}" data-ir="planificacion"><b>${atr}</b><span>tareas atrasadas</span></button>
+      <button class="kpi ${p.ausencias.length ? 'alerta' : ''}" data-ir="ausencias"><b>${p.ausencias.length}</b><span>ausencias por aprobar</span></button>
+    </div>
+    <div class="dos">
+      <div class="card pad"><h2>Quién trabaja ahora</h2>${p.trabajando.length ? `<table><thead><tr><th>Persona</th><th>Desde</th><th>Obra</th><th></th></tr></thead><tbody>${p.trabajando.map(t => `<tr>
+        <td><b>${esc(t.nombre)}</b> ${t.estado === 'en pausa' ? '<span class="chip ambar">En pausa</span>' : ''}</td><td class="num">${hora(t.desde)}</td><td>${esc(t.obra) || '<span class="sub">Sin indicar</span>'}</td>
+        <td>${t.lat ? `<a href="${mapa(t.lat, t.lng)}" target="_blank" rel="noopener">Mapa</a>` : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="vacio">Nadie ha fichado todavía.</p>'}</div>
+      <div class="card pad"><h2>Revisar</h2>${p.alertas.length || p.vencimientos.length ? p.alertas.map(a => `<div class="alerta-l"><b>${esc(a.nombre)}</b>: ${esc(a.texto)}.</div>`).join('') +
+        p.vencimientos.map(v => `<div class="alerta-l ${v.vencido ? '' : 'n'}"><b>${esc(v.matricula)}</b> ${esc(v.modelo || '')}: ${v.que} ${v.vencido ? 'caducada desde el' : 'caduca el'} ${fC(v.fecha)}.</div>`).join('') : '<p class="vacio">Todo en orden.</p>'}</div>
+    </div>
+    <div class="dos">
+      <div class="card pad"><h2>Ausencias por aprobar</h2>${p.ausencias.length ? tablaAprobar(p.ausencias) : '<p class="vacio">No hay solicitudes pendientes.</p>'}</div>
+      <div class="card pad"><h2>Carga del equipo</h2><table><thead><tr><th>Persona</th><th class="r">Tareas</th><th class="r">Atrasadas</th><th class="r">Avisos</th><th class="r">Obras</th></tr></thead><tbody>
+        ${eq.map(x => `<tr class="clic" data-plan><td><b>${esc(x.nombre)}</b></td><td class="r num">${x.pendientes}</td><td class="r num" style="${x.atrasadas ? 'color:var(--rojo);font-weight:700' : ''}">${x.atrasadas}</td><td class="r num">${x.avisos}</td><td class="r num">${x.obras}</td></tr>`).join('')}</tbody></table></div>
+    </div>`;
+  $$('[data-ir]', m).forEach(b => b.onclick = () => ir(b.dataset.ir));
+  $$('[data-plan]', m).forEach(b => b.onclick = () => ir('planificacion'));
+  montarAprobar(m);
+};
+function tablaAprobar(l) {
+  return `<table><thead><tr><th>Persona</th><th>Tipo</th><th>Fechas</th><th class="r">Días</th><th></th></tr></thead><tbody>${l.map(x => `<tr>
+    <td><b>${esc(x.nombre)}</b>${x.motivo ? `<span class="sub">${esc(x.motivo)}</span>` : ''}</td><td>${esc(T_AUS[x.tipo] || x.tipo)}${x.adjuntoUrl ? `<span class="sub"><a href="${esc(x.adjuntoUrl)}" target="_blank" rel="noopener">Justificante</a></span>` : ''}</td>
+    <td>${fC(x.desde)}${x.hasta !== x.desde ? ' – ' + fC(x.hasta) : ''}</td><td class="r num">${x.dias}</td>
+    <td class="r" style="white-space:nowrap"><button class="btn b-linea b-peq" data-res="${esc(x.id)}" data-e="rechazada">Rechazar</button> <button class="btn b-azul b-peq" data-res="${esc(x.id)}" data-e="aprobada">Aprobar</button></td></tr>`).join('')}</tbody></table>`;
+}
+function montarAprobar(m) {
+  $$('[data-res]', m).forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try { await api('resolverAusencia', { id: b.dataset.res, estado: b.dataset.e }); toast(b.dataset.e === 'aprobada' ? 'Ausencia aprobada' : 'Ausencia rechazada'); recargar(); }
+    catch (e) { toast(e.message, true); b.disabled = false; }
+  });
+}
+
+/* ───── Planificación semanal ───── */
+function lunes(f) { const d = aF(f); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return clave(d); }
+function sumar(f, n) { const d = aF(f); d.setDate(d.getDate() + n); return clave(d); }
+VISTAS.planificacion = async m => {
+  S.semana = S.semana || lunes(hoy());
+  const desde = S.semana, hasta = sumar(desde, 6), dias = [...Array(7)].map((_, i) => sumar(desde, i));
+  const [lista, us] = await Promise.all([api('listarTareas', { desde, hasta }), usuarios()]);
+  const gente = activos(us), h = hoy();
+  const atr = lista.filter(t => t.estado === 'pendiente' && t.fecha < h).length;
+  const chipT = t => `<button class="tchip ${esc(t.prioridad)} ${t.estado === 'hecha' ? 'hecha' : ''} ${t.estado === 'pendiente' && t.fecha < h ? 'atras' : ''}" data-t="${esc(t.id)}" title="${esc(t.descripcion || t.titulo)}">${esc(t.titulo)}${t.obraCliente || t.avisoNumero ? `<small>${esc([t.obraCliente, t.avisoNumero].filter(Boolean).join(', '))}</small>` : ''}</button>`;
+  m.innerHTML = cab('Planificación', `Semana del ${fC(desde)} al ${fCA(hasta)}. ${lista.filter(t => t.estado === 'pendiente').length} tareas pendientes${atr ? `, <b style="color:var(--rojo)">${atr} atrasadas</b>` : ''}.`,
+    `<button class="btn b-linea" data-s="-7">‹ Anterior</button><button class="btn b-linea" data-s="0">Esta semana</button><button class="btn b-linea" data-s="7">Siguiente ›</button><button class="btn b-azul" id="nt">Asignar tarea</button>`) + `
+    <div class="tabla-w"><table class="plan"><thead><tr><th style="width:150px">Persona</th><th style="width:150px">Atrasadas</th>${dias.map((d, i) => `<th class="dia ${d === h ? 'hoy' : ''}">${mayus(aF(d).toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', ''))} ${aF(d).getDate()}</th>`).join('')}</tr></thead>
+    <tbody>${gente.map(u => `<tr><td class="persona">${esc(u.nombre)}</td>
+      <td>${lista.filter(t => t.usuarioId === u.id && t.estado === 'pendiente' && t.fecha < desde).map(chipT).join('')}</td>
+      ${dias.map((d, i) => `<td class="celda ${i > 4 ? 'finde' : ''}" data-u="${esc(u.id)}" data-d="${d}">${lista.filter(t => t.usuarioId === u.id && t.fecha === d).map(chipT).join('')}<span class="mas" aria-hidden="true">+</span></td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p style="color:var(--gris);font-size:14px">Pulsa en una casilla vacía para asignar una tarea a esa persona ese día. Pulsa una tarea para editarla, marcarla como hecha o anularla.</p>`;
+  $$('[data-s]', m).forEach(b => b.onclick = () => { S.semana = +b.dataset.s ? sumar(S.semana, +b.dataset.s) : lunes(hoy()); recargar(); });
+  $('#nt').onclick = () => formTarea({});
+  $$('[data-t]', m).forEach(b => b.onclick = e => { e.stopPropagation(); formTarea(lista.find(t => t.id === b.dataset.t)); });
+  $$('td.celda', m).forEach(c => c.onclick = () => formTarea({ usuarioId: c.dataset.u, fecha: c.dataset.d }));
+};
+async function formTarea(t) {
+  const [us, obras, avisos] = await Promise.all([usuarios(), api('listarObras', {}).catch(() => []), api('listarAvisos', { filtro: 'abiertos' }).catch(() => [])]);
+  const existe = !!t.id;
+  const v = modal(existe ? 'Tarea' : 'Asignar tarea', `<form class="form">
+    <div class="c3"><label>Para</label><select name="usuarioId" required><option value="">Elige una persona</option>${activos(us).map(u => `<option value="${esc(u.id)}" ${u.id === t.usuarioId ? 'selected' : ''}>${esc(u.nombre)}</option>`).join('')}</select></div>
+    <div class="c2"><label>Día</label><input type="date" name="fecha" required value="${esc(t.fecha || hoy())}"></div>
+    <div><label>Prioridad</label><select name="prioridad">${opciones(PRIO, t.prioridad || 'normal')}</select></div>
+    <div class="c6"><label>Qué hay que hacer</label><input name="titulo" required maxlength="140" value="${esc(t.titulo || '')}" placeholder="Por ejemplo: montar la estructura de la cubierta sur"></div>
+    <div class="c6"><label>Detalles</label><textarea name="descripcion" placeholder="Material, accesos, persona de contacto…">${esc(t.descripcion || '')}</textarea></div>
+    <div class="c3"><label>Obra</label><select name="obraId"><option value="">Ninguna</option>${obras.filter(o => ['en curso', 'planificada'].includes(o.estado) || o.id === t.obraId).map(o => `<option value="${esc(o.id)}" ${o.id === t.obraId ? 'selected' : ''}>${esc(o.cliente)}${o.municipio ? ' (' + esc(o.municipio) + ')' : ''}</option>`).join('')}</select></div>
+    <div class="c3"><label>Aviso</label><select name="avisoId"><option value="">Ninguno</option>${avisos.map(a => `<option value="${esc(a.id)}" ${a.id === t.avisoId ? 'selected' : ''}>${esc(a.numero)}: ${esc(a.cliente)}</option>`).join('')}</select></div>
+    ${existe ? `<div class="c6"><label>Estado</label>${t.estado === 'hecha' ? `<span class="chip verde">Hecha</span>${t.nota ? ` <span class="sub">Nota: ${esc(t.nota)}</span>` : ''}` : '<span class="chip">Pendiente</span>'}</div>` : ''}
+    <p class="error c6"></p></form>`, { pie: `${existe ? `<button class="btn b-rojo" data-anular style="margin-right:auto">Anular</button><button class="btn b-linea" data-hecha>${t.estado === 'hecha' ? 'Volver a pendiente' : 'Marcar como hecha'}</button>` : ''}<button class="btn b-linea" data-x2>Cancelar</button><button class="btn b-azul" data-guardar>${existe ? 'Guardar' : 'Asignar'}</button>` });
+  $('[data-x2]', v).onclick = cerrarModal;
+  alGuardar(v, async d => { await api('guardarTarea', { tarea: { ...d, id: t.id || uuid() } }); cerrarModal(); toast(existe ? 'Tarea guardada' : 'Tarea asignada'); recargar(); });
+  if (existe) {
+    $('[data-hecha]', v).onclick = async () => { try { await api('completarTarea', { id: t.id, hecha: t.estado !== 'hecha' }); cerrarModal(); toast('Tarea actualizada'); recargar(); } catch (e) { toast(e.message, true); } };
+    $('[data-anular]', v).onclick = async () => { if (!(await confirmar(`La tarea «${t.titulo}» desaparecerá de la lista de ${t.nombre}.`, 'Anular tarea'))) return;
+      try { await api('guardarTarea', { tarea: { id: t.id }, anular: true }); toast('Tarea anulada'); recargar(); } catch (e) { toast(e.message, true); } };
+  }
+}
+
+/* ───── Obras ───── */
+VISTAS.obras = async m => {
+  const [lista, us] = await Promise.all([api('listarObras', {}), usuarios()]);
+  S.fObra = S.fObra || { estado: 'activas', q: '' };
+  const pintarT = () => {
+    const q = S.fObra.q.toLowerCase();
+    const l = lista.filter(o => (S.fObra.estado === 'todas' || (S.fObra.estado === 'activas' ? ['planificada', 'en curso'].includes(o.estado) : o.estado === S.fObra.estado))
+      && (!q || [o.cliente, o.codigo, o.municipio, o.marcaPaneles, o.marcaInversor, o.marcaBateria, o.equipoNombres].join(' ').toLowerCase().includes(q)));
+    $('#tb').innerHTML = l.length ? l.map(o => { const pct = o.horasPrevistas ? Math.min(100, o.horas / o.horasPrevistas * 100) : 0; return `<tr class="clic" data-o="${esc(o.id)}">
+      <td class="num">${esc(o.codigo)}</td><td><b>${esc(o.cliente)}</b><span class="sub">${esc(o.municipio)}</span></td>
+      <td class="r num">${o.kwp ? n1(o.kwp) : ''}</td><td>${esc(o.marcaPaneles || '')}<span class="sub">${o.paneles ? o.paneles + ' paneles' : ''}</span></td>
+      <td>${esc([o.marcaInversor, o.inversor].filter(Boolean).join(' '))}</td><td>${o.bateriaKwh ? `<b class="num">${n1(o.bateriaKwh)} kWh</b><span class="sub">${esc(o.marcaBateria || '')}</span>` : '<span class="sub">No</span>'}</td>
+      <td>${esc(o.equipoNombres || '')}</td><td class="r num">${n1(o.horas)}${o.horasPrevistas ? ' / ' + n1(o.horasPrevistas) : ''}${o.horasPrevistas ? `<div class="barra"><i class="${o.horas > o.horasPrevistas ? 'pasado' : ''}" style="width:${pct}%"></i></div>` : ''}</td>
+      <td class="r num">${euro(o.gastos)}</td><td>${chip(E_OBRA, o.estado)}</td></tr>`; }).join('') : `<tr><td colspan="10" class="vacio">No hay obras con este filtro.</td></tr>`;
+    $$('[data-o]').forEach(r => r.onclick = () => fichaObra(lista.find(o => o.id === r.dataset.o)));
+  };
+  m.innerHTML = cab('Obras', `${lista.filter(o => o.estado === 'en curso').length} en curso, ${lista.filter(o => o.estado === 'planificada').length} planificadas, ${lista.length} en total`,
+    `<input class="buscar" type="search" id="q" placeholder="Buscar cliente, municipio, marca…" value="${esc(S.fObra.q)}">
+     <select id="fe">${opciones({ activas: 'Planificadas y en curso', planificada: 'Planificadas', 'en curso': 'En curso', finalizada: 'Finalizadas', facturada: 'Facturadas', todas: 'Todas' }, S.fObra.estado)}</select>
+     <button class="btn b-azul" id="no">Nueva obra</button>`) + `
+    <div class="tabla-w"><table><thead><tr><th>Código</th><th>Cliente</th><th class="r">kWp</th><th>Paneles</th><th>Inversor</th><th>Baterías</th><th>Equipo</th><th class="r">Horas</th><th class="r">Gastos</th><th>Estado</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+  $('#q').oninput = e => { S.fObra.q = e.target.value; pintarT(); };
+  $('#fe').onchange = e => { S.fObra.estado = e.target.value; pintarT(); };
+  $('#no').onclick = () => fichaObra({});
+  pintarT();
+};
+async function fichaObra(o) {
+  const us = activos(await usuarios()), eq = String(o.equipo || '').split(','), val = k => esc(o[k] ?? '');
+  const v = modal(o.id ? `${o.codigo || ''} ${o.cliente}` : 'Nueva obra', `<div class="${o.id ? 'cols' : ''}"><form class="form">
+    <h4>Cliente</h4>
+    <div class="c3"><label>Cliente</label><input name="cliente" required value="${val('cliente')}"></div>
+    <div class="c2"><label>Teléfono</label><input name="telefono" type="tel" value="${val('telefono')}"></div>
+    <div><label>Código</label><input name="codigo" value="${val('codigo')}" placeholder="Auto"></div>
+    <div class="c4" style="grid-column:span 4"><label>Dirección</label><input name="direccion" value="${val('direccion')}"></div>
+    <div class="c2"><label>Municipio</label><input name="municipio" value="${val('municipio')}"></div>
+    <h4>Instalación</h4>
+    <div class="c2"><label>Potencia (kWp)</label><input name="kwp" type="number" step="0.01" min="0" value="${val('kwp')}"></div>
+    <div class="c2"><label>Nº de paneles</label><input name="paneles" type="number" min="0" value="${val('paneles')}"></div>
+    <div class="c2"><label>Marca de los paneles</label><input name="marcaPaneles" value="${val('marcaPaneles')}" placeholder="JA Solar, LONGi…"></div>
+    <div class="c3"><label>Marca del inversor</label><input name="marcaInversor" value="${val('marcaInversor')}" placeholder="Huawei, Fronius…"></div>
+    <div class="c3"><label>Modelo del inversor</label><input name="inversor" value="${val('inversor')}" placeholder="SUN2000-8KTL"></div>
+    <div class="c3"><label>Baterías (kWh)</label><input name="bateriaKwh" type="number" step="0.1" min="0" value="${val('bateriaKwh')}" placeholder="0 si no lleva"></div>
+    <div class="c3"><label>Marca de las baterías</label><input name="marcaBateria" value="${val('marcaBateria')}" placeholder="Huawei LUNA, BYD…"></div>
+    <h4>Planificación</h4>
+    <div class="c2"><label>Estado</label><select name="estado">${opciones(E_OBRA, o.estado || 'planificada')}</select></div>
+    <div class="c2"><label>Inicio</label><input type="date" name="fechaInicio" value="${val('fechaInicio')}"></div>
+    <div class="c2"><label>Fin previsto</label><input type="date" name="fechaFin" value="${val('fechaFin')}"></div>
+    <div class="c3"><label>Horas previstas</label><input name="horasPrevistas" type="number" step="0.5" min="0" value="${val('horasPrevistas')}"></div>
+    <div class="c3"><label>Presupuesto (€)</label><input name="presupuesto" type="number" step="0.01" min="0" value="${val('presupuesto')}"></div>
+    <div class="c6"><label>Equipo</label><div class="checks">${us.map(u => `<label><input type="checkbox" name="equipo" value="${esc(u.id)}" ${eq.includes(u.id) ? 'checked' : ''}>${esc(u.nombre)}</label>`).join('')}</div></div>
+    <div class="c6"><label>Notas para el equipo</label><textarea name="notas">${val('notas')}</textarea></div>
+    <p class="error c6"></p></form>${o.id ? '<div id="det"><p class="sub">Cargando actividad…</p></div>' : ''}</div>`,
+    { ancho: !!o.id, pie: `${o.id ? '<button class="btn b-linea" data-tarea style="margin-right:auto">Asignar tarea</button>' : ''}<button class="btn b-linea" data-x2>Cancelar</button><button class="btn b-azul" data-guardar>${o.id ? 'Guardar cambios' : 'Crear obra'}</button>` });
+  $('[data-x2]', v).onclick = cerrarModal;
+  if (o.id) $('[data-tarea]', v).onclick = () => formTarea({ obraId: o.id });
+  alGuardar(v, async d => {
+    delete d.equipo;
+    await api('guardarObra', { obra: { ...d, equipo: $$('input[name=equipo]:checked', v).map(x => x.value), id: o.id || uuid() } });
+    cerrarModal(); toast(o.id ? 'Obra guardada' : 'Obra creada'); recargar();
+  });
+  if (o.id) {
+    try {
+      const d = await api('obra', { id: o.id });
+      $('#det', v).innerHTML = `<h2>Actividad</h2>
+        <p><b class="num" style="font-size:24px">${n1(d.obra.horas)} h</b> imputadas · <b class="num" style="font-size:24px">${euro(d.obra.gastos)}</b> en gastos · ${d.fotos.length} fotos</p>
+        <h2 style="margin-top:14px">Tareas</h2><div class="lista-s">${d.tareas.length ? d.tareas.map(t => `<div>${t.estado === 'hecha' ? '✓ ' : ''}<b>${esc(t.titulo)}</b><br><small>${esc(t.nombre)}, ${fC(t.fecha)}</small></div>`).join('') : '<small>Sin tareas.</small>'}</div>
+        <h2 style="margin-top:14px">Últimas horas</h2><div class="lista-s">${d.partes.length ? d.partes.slice(0, 12).map(x => `<div><b>${n1(x.horas)} h</b> ${esc(x.tarea)}<br><small>${fC(x.fecha)}, ${esc(x.nombre)}</small></div>`).join('') : '<small>Nadie ha anotado horas.</small>'}</div>
+        <h2 style="margin-top:14px">Gastos</h2><div class="lista-s">${d.gastos.length ? d.gastos.slice(0, 12).map(g => `<div><b>${euro(g.importe)}</b> ${esc(g.descripcion || g.tipo)}<br><small>${fC(g.fecha)}, ${esc(g.nombre)}${g.ticketUrl ? `, <a href="${esc(g.ticketUrl)}" target="_blank" rel="noopener">ticket</a>` : ''}</small></div>`).join('') : '<small>Sin gastos.</small>'}</div>
+        ${d.fotos.length ? `<h2 style="margin-top:14px">Fotos</h2><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${d.fotos.slice(0, 12).map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=${encodeURIComponent(f.fileId)}&sz=w300" alt="${esc(f.categoria)}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px"></a>`).join('')}</div>` : ''}`;
+    } catch (e) { $('#det', v).innerHTML = `<p class="error">${esc(e.message)}</p>`; }
+  }
+}
+
+/* ───── Avisos ───── */
+VISTAS.avisos = async m => {
+  S.fAv = S.fAv || { filtro: 'abiertos', q: '' };
+  const [lista, us] = await Promise.all([api('listarAvisos', { filtro: S.fAv.filtro }), usuarios()]);
+  const gente = activos(us);
+  if (S.fAv.filtro === 'abiertos') contador('avisos', lista.filter(a => !a.asignadoA).length);
+  const pintarT = () => {
+    const q = S.fAv.q.toLowerCase();
+    const l = lista.filter(a => !q || [a.numero, a.cliente, a.direccion, a.descripcion, a.asignadoNombre].join(' ').toLowerCase().includes(q));
+    $('#tb').innerHTML = l.length ? l.map(a => `<tr class="clic" data-a="${esc(a.id)}">
+      <td class="num">${esc(a.numero)}<span class="sub">${fC(a.fecha)}</span></td><td><b>${esc(a.cliente)}</b><span class="sub">${esc(a.telefono || '')}</span></td>
+      <td>${esc(T_AVISO[a.tipo] || a.tipo)}${a.origen === 'formulario web' ? '<span class="sub">Formulario web</span>' : ''}</td><td>${chip(PRIO, a.prioridad)}</td>
+      <td class="trunc" title="${esc(a.descripcion)}">${esc(a.descripcion)}</td><td>${chip(E_AVISO, a.estado)}</td>
+      <td>${['nuevo', 'asignado', 'en curso'].includes(a.estado) ? `<select data-asig="${esc(a.id)}" aria-label="Asignar"><option value="">Sin asignar</option>${gente.map(u => `<option value="${esc(u.id)}" ${u.id === a.asignadoA ? 'selected' : ''}>${esc(u.nombre)}</option>`).join('')}</select>` : esc(a.asignadoNombre || '')}</td></tr>`).join('')
+      : `<tr><td colspan="7" class="vacio">No hay avisos en esta lista.</td></tr>`;
+    $$('[data-a]').forEach(r => r.onclick = e => { if (e.target.closest('select')) return; fichaAviso(lista.find(a => a.id === r.dataset.a), gente); });
+    $$('[data-asig]').forEach(s => s.onchange = async () => { try { await api('actualizarAviso', { id: s.dataset.asig, asignadoA: s.value }); toast('Aviso asignado'); recargar(); } catch (e) { toast(e.message, true); } });
+  };
+  m.innerHTML = cab('Avisos', 'Averías, mantenimientos y consultas de clientes',
+    `<input class="buscar" type="search" id="q" placeholder="Buscar cliente, número…" value="${esc(S.fAv.q)}">
+     <span class="seg"><button aria-pressed="${S.fAv.filtro === 'abiertos'}" data-f="abiertos">Abiertos</button><button aria-pressed="${S.fAv.filtro === 'cerrados'}" data-f="cerrados">Resueltos y cerrados</button></span>
+     <a class="btn b-linea" href="${esc(API_URL)}" target="_blank" rel="noopener">Formulario de clientes</a><button class="btn b-azul" id="na">Nuevo aviso</button>`) + `
+    <div class="tabla-w"><table><thead><tr><th>Número</th><th>Cliente</th><th>Tipo</th><th>Prioridad</th><th>Qué ocurre</th><th>Estado</th><th>Asignado a</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+  $('#q').oninput = e => { S.fAv.q = e.target.value; pintarT(); };
+  $$('[data-f]', m).forEach(b => b.onclick = () => { S.fAv.filtro = b.dataset.f; recargar(); });
+  $('#na').onclick = () => nuevoAviso(gente);
+  pintarT();
+};
+async function nuevoAviso(gente) {
+  const obras = await api('listarObras', {}).catch(() => []);
+  const v = modal('Nuevo aviso', `<form class="form">
+    <div class="c3"><label>Cliente</label><input name="cliente" required list="lc"><datalist id="lc">${obras.map(o => `<option value="${esc(o.cliente)}">`).join('')}</datalist></div>
+    <div class="c3"><label>Teléfono</label><input name="telefono" type="tel"></div>
+    <div class="c6"><label>Dirección</label><input name="direccion"></div>
+    <div class="c2"><label>Tipo</label><select name="tipo">${opciones(T_AVISO, 'avería')}</select></div>
+    <div class="c2"><label>Prioridad</label><select name="prioridad">${opciones(PRIO, 'normal')}</select></div>
+    <div class="c2"><label>Asignar a</label><select name="asignadoA"><option value="">Sin asignar</option>${gente.map(u => `<option value="${esc(u.id)}">${esc(u.nombre)}</option>`).join('')}</select></div>
+    <div class="c6"><label>Instalación relacionada</label><select name="obraId"><option value="">Ninguna</option>${obras.map(o => `<option value="${esc(o.id)}">${esc(o.cliente)} (${esc(o.codigo)})</option>`).join('')}</select></div>
+    <div class="c6"><label>Qué ocurre</label><textarea name="descripcion" required></textarea></div><p class="error c6"></p></form>`,
+    { pie: '<button class="btn b-linea" data-x2>Cancelar</button><button class="btn b-azul" data-guardar>Crear aviso</button>' });
+  $('[data-x2]', v).onclick = cerrarModal;
+  const c = $('[name=cliente]', v);
+  c.onchange = () => { const o = obras.find(x => x.cliente === c.value); if (o) { $('[name=telefono]', v).value ||= o.telefono || ''; $('[name=direccion]', v).value ||= [o.direccion, o.municipio].filter(Boolean).join(', '); $('[name=obraId]', v).value = o.id; } };
+  alGuardar(v, async d => { const r = await api('crearAviso', { id: uuid(), aviso: d }); cerrarModal(); toast('Aviso ' + r.numero + ' creado'); recargar(); });
+}
+async function fichaAviso(a, gente) {
+  const d = await api('aviso', { id: a.id }), x = d.aviso, abierto = ['nuevo', 'asignado', 'en curso'].includes(x.estado);
+  const v = modal(`${x.numero} · ${x.cliente}`, `<div class="cols"><div>
+      <p>${chip(E_AVISO, x.estado)} ${chip(PRIO, x.prioridad)} <span class="chip">${esc(T_AVISO[x.tipo] || x.tipo)}</span></p>
+      <div class="card pad" style="white-space:pre-wrap">${esc(x.descripcion)}</div>
+      <p><b>Teléfono:</b> ${esc(x.telefono || '-')}<br><b>Dirección:</b> ${esc(x.direccion || '-')}<br><b>Entró:</b> ${new Date(x.fecha).toLocaleString('es-ES')} (${esc(x.origen === 'formulario web' ? 'formulario web' : x.creadoPor || 'app')})</p>
+      ${x.solucion ? `<h2>Solución${x.minutos ? ` (${hm(x.minutos)} h)` : ''}</h2><div class="card pad" style="white-space:pre-wrap">${esc(x.solucion)}</div>` : ''}
+      ${d.fotos.length ? `<h2 style="margin-top:12px">Fotos</h2><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${d.fotos.map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=${encodeURIComponent(f.fileId)}&sz=w300" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px"></a>`).join('')}</div>` : ''}
+    </div><div>
+      ${abierto ? `<form class="form" id="fa"><div class="c3"><label>Asignado a</label><select name="asignadoA"><option value="">Sin asignar</option>${gente.map(u => `<option value="${esc(u.id)}" ${u.id === x.asignadoA ? 'selected' : ''}>${esc(u.nombre)}</option>`).join('')}</select></div>
+        <div class="c3"><label>Prioridad</label><select name="prioridad">${opciones(PRIO, x.prioridad)}</select></div>
+        <div class="c6"><label>Solución (para marcarlo resuelto)</label><textarea name="solucion"></textarea></div>
+        <div class="c3"><label>Minutos dedicados</label><input name="minutos" type="number" min="0" step="5"></div><p class="error c6"></p></form>` : ''}
+      <h2 style="margin-top:12px">Seguimiento</h2><div class="lista-s">${d.notas.length ? d.notas.map(n => `<div>${esc(n.texto)}<br><small>${new Date(n.fecha).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}, ${esc(n.nombre)}</small></div>`).join('') : '<small>Sin notas.</small>'}</div>
+      <form id="fn" style="display:flex;gap:6px;margin-top:8px"><input name="texto" placeholder="Añadir nota" style="flex:1" required><button class="btn b-linea">Añadir</button></form>
+    </div></div>`, { ancho: true, pie: abierto ? `<button class="btn b-linea" data-tarea style="margin-right:auto">Crear tarea</button><button class="btn b-linea" data-resolver>Marcar resuelto</button><button class="btn b-azul" data-guardar>Guardar asignación</button>`
+      : x.estado === 'resuelto' ? '<button class="btn b-osc" data-cerrar>Cerrar aviso</button>' : '' });
+  $('#fn', v).onsubmit = async e => { e.preventDefault(); try { await api('notaAviso', { id: uuid(), avisoId: x.id, texto: e.target.texto.value }); toast('Nota añadida'); fichaAviso(a, gente); } catch (er) { toast(er.message, true); } };
+  if (abierto) {
+    alGuardar(v, async f => { await api('actualizarAviso', { id: x.id, asignadoA: f.asignadoA, prioridad: f.prioridad }); cerrarModal(); toast('Aviso guardado'); recargar(); });
+    $('[data-resolver]', v).onclick = async () => { const f = $('#fa', v);
+      if (!f.solucion.value.trim()) { $('.error', v).textContent = 'Escribe la solución para marcarlo resuelto.'; f.solucion.focus(); return; }
+      try { await api('actualizarAviso', { id: x.id, estado: 'resuelto', solucion: f.solucion.value, minutos: Number(f.minutos.value) || '' }); cerrarModal(); toast('Aviso resuelto'); recargar(); } catch (e) { $('.error', v).textContent = e.message; } };
+    $('[data-tarea]', v).onclick = () => formTarea({ avisoId: x.id, usuarioId: x.asignadoA, obraId: x.obraId, titulo: 'Aviso ' + x.numero + ': ' + x.cliente });
+  }
+  const c = $('[data-cerrar]', v); if (c) c.onclick = async () => { try { await api('actualizarAviso', { id: x.id, estado: 'cerrado' }); cerrarModal(); toast('Aviso cerrado'); recargar(); } catch (e) { toast(e.message, true); } };
+}
+
+/* ───── Ausencias ───── */
+VISTAS.ausencias = async m => {
+  S.mesAus = S.mesAus || hoy().slice(0, 7);
+  const [y, mm] = S.mesAus.split('-').map(Number), nd = new Date(y, mm, 0).getDate();
+  const [p, cal, us] = await Promise.all([api('panel'), api('calendarioAusencias', { mes: S.mesAus }), usuarios()]);
+  contador('ausencias', p.ausencias.length);
+  const dias = [...Array(nd)].map((_, i) => `${S.mesAus}-${pad(i + 1)}`);
+  const mesTxt = mayus(new Date(y, mm - 1, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }));
+  m.innerHTML = cab('Ausencias', 'Vacaciones, permisos y bajas del equipo') + `
+    <div class="card pad" style="margin-bottom:16px"><h2>Por aprobar</h2>${p.ausencias.length ? tablaAprobar(p.ausencias) : '<p class="vacio">No hay solicitudes pendientes.</p>'}</div>
+    <div class="cab" style="margin-bottom:10px"><h2 style="margin:0">${mesTxt}</h2><div class="acciones"><button class="btn b-linea" data-m="-1">‹ Anterior</button><button class="btn b-linea" data-m="0">Este mes</button><button class="btn b-linea" data-m="1">Siguiente ›</button></div></div>
+    <div class="tabla-w"><table class="cal-aus"><thead><tr><th class="persona">Persona</th>${dias.map(d => { const w = aF(d).getDay(); return `<th class="${w % 6 === 0 ? 'fd' : ''}">${aF(d).getDate()}</th>`; }).join('')}</tr></thead>
+    <tbody>${activos(us).map(u => `<tr><td class="persona">${esc(u.nombre)}</td>${dias.map(d => {
+      const w = aF(d).getDay(), a = cal.find(x => x.nombre === u.nombre && x.desde <= d && x.hasta >= d);
+      const cls = a ? (a.estado === 'pendiente' ? 'p' : a.tipo === 'baja' ? 'b' : 'a') : (w % 6 === 0 ? 'fd' : '');
+      return `<td class="${cls}" title="${a ? esc((T_AUS[a.tipo] || a.tipo) + (a.estado === 'pendiente' ? ' (pendiente)' : '')) : ''}">${a ? (a.tipo === 'baja' ? 'B' : a.tipo === 'vacaciones' ? 'V' : 'P') : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>
+    <p style="color:var(--gris);font-size:14px">V: vacaciones aprobadas. P: permiso o asuntos propios. B: baja. Las casillas amarillas están pendientes de aprobar.</p>`;
+  montarAprobar(m);
+  $$('[data-m]', m).forEach(b => b.onclick = () => { const d = +b.dataset.m ? new Date(y, mm - 1 + +b.dataset.m, 1) : new Date(); S.mesAus = clave(d).slice(0, 7); recargar(); });
+};
+
+/* ───── Registro de jornada ───── */
+VISTAS.jornada = async m => {
+  S.mesJor = S.mesJor || hoy().slice(0, 7);
+  const [inf, p] = await Promise.all([api('informeJornada', { mes: S.mesJor }), api('panel')]);
+  const total = inf.usuarios.reduce((s, u) => s + u.total, 0);
+  m.innerHTML = cab('Registro de jornada', `Total del mes: <b class="num">${hm(total)} h</b>`,
+    `<input type="month" id="mes" value="${S.mesJor}"><button class="btn b-azul" id="csv" ${inf.usuarios.length ? '' : 'disabled'}>Descargar CSV</button>`) + `
+    <div class="dos"><div class="card pad"><h2>Ahora mismo</h2>${p.trabajando.length ? p.trabajando.map(t => `<div style="padding:6px 0"><b>${esc(t.nombre)}</b> desde las ${hora(t.desde)}${t.obra ? ', ' + esc(t.obra) : ''} ${t.estado === 'en pausa' ? '<span class="chip ambar">En pausa</span>' : ''}</div>`).join('') : '<p class="vacio">Nadie fichado.</p>'}
+      ${p.alertas.map(a => `<div class="alerta-l"><b>${esc(a.nombre)}</b>: ${esc(a.texto)}.</div>`).join('')}</div>
+    <div class="card pad"><h2>Resumen del mes</h2><table><thead><tr><th>Persona</th><th class="r">Días</th><th class="r">Horas</th><th class="r">Media diaria</th><th class="r">Sin salida</th></tr></thead><tbody>
+      ${inf.usuarios.map(u => `<tr><td><b>${esc(u.nombre)}</b></td><td class="r num">${u.dias.length}</td><td class="r num">${hm(u.total)}</td><td class="r num">${hm(u.total / (u.dias.length || 1))}</td><td class="r num" style="${u.dias.some(d => !d.salida) ? 'color:var(--rojo);font-weight:700' : ''}">${u.dias.filter(d => !d.salida).length}</td></tr>`).join('') || '<tr><td colspan="5" class="vacio">Sin fichajes este mes.</td></tr>'}</tbody></table></div></div>
+    ${inf.usuarios.map(u => `<details class="card pad" style="margin-bottom:10px"><summary style="cursor:pointer;font-weight:700">${esc(u.nombre)}: ${hm(u.total)} h en ${u.dias.length} días</summary>
+      <table style="margin-top:10px"><thead><tr><th>Día</th><th>Entrada</th><th>Salida</th><th class="r">Pausas</th><th class="r">Horas</th></tr></thead><tbody>${u.dias.map(d => `<tr><td>${mayus(aF(d.fecha).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }))}</td><td class="num">${hora(d.entrada)}</td><td class="num">${d.salida ? hora(d.salida) : '<span class="chip rojo">Sin salida</span>'}</td><td class="r num">${d.pausas}</td><td class="r num"><b>${hm(d.minutos)}</b></td></tr>`).join('')}</tbody></table></details>`).join('')}
+    <p style="color:var(--gris);font-size:14px">Los registros se conservan en la hoja «Fichajes». Las correcciones se hacen allí, anotando el motivo en la columna «nota».</p>`;
+  $('#mes').onchange = e => { S.mesJor = e.target.value; recargar(); };
+  $('#csv').onclick = () => {
+    const filas = [['Trabajador', 'Fecha', 'Entrada', 'Salida', 'Pausas', 'Horas trabajadas']];
+    inf.usuarios.forEach(u => u.dias.forEach(d => filas.push([u.nombre, d.fecha, hora(d.entrada), d.salida ? hora(d.salida) : 'SIN SALIDA', d.pausas, (d.minutos / 60).toFixed(2).replace('.', ',')])));
+    const csv = '\ufeff' + filas.map(f => f.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `registro-jornada-${S.mesJor}.csv`; document.body.appendChild(a); a.click(); a.remove();
+  };
+};
+
+/* ───── Furgonetas ───── */
+const venc = (f, que) => { if (!f) return '<span class="sub">-</span>'; const d = Math.round((aF(f) - aF(hoy())) / 864e5); return `<span class="chip ${d < 0 ? 'rojo' : d <= 30 ? 'naranja' : ''}">${d < 0 ? 'Caducada' : fCA(f)}</span>`; };
+VISTAS.furgonetas = async m => {
+  const [lista, us] = await Promise.all([api('furgonetas'), usuarios(true)]);
+  m.innerHTML = cab('Furgonetas', `${lista.filter(f => f.activa).length} en servicio, ${lista.filter(f => f.activa && !f.asignadoA).length} sin asignar`, '<button class="btn b-azul" id="nf">Añadir furgoneta</button>') + `
+    <div class="tabla-w"><table><thead><tr><th>Matrícula</th><th>Modelo</th><th>Asignada a</th><th class="r">Km</th><th>ITV</th><th>Seguro</th><th>Revisión</th><th>Estado</th></tr></thead><tbody>
+    ${lista.length ? lista.map(f => `<tr class="clic" data-f="${esc(f.id)}" style="${f.activa ? '' : 'opacity:.55'}"><td class="num"><b>${esc(f.matricula)}</b></td><td>${esc(f.modelo || '')}${f.alias ? `<span class="sub">${esc(f.alias)}</span>` : ''}</td>
+      <td>${esc(f.asignadoNombre || '') || '<span class="chip ambar">Libre</span>'}</td><td class="r num">${f.km !== '' && f.km != null ? Number(f.km).toLocaleString('es-ES') : ''}</td>
+      <td>${venc(f.itv)}</td><td>${venc(f.seguro)}</td><td>${venc(f.revision)}</td><td>${f.activa ? '<span class="chip verde">En servicio</span>' : '<span class="chip">Baja</span>'}</td></tr>`).join('') : '<tr><td colspan="8" class="vacio">Todavía no hay furgonetas.</td></tr>'}</tbody></table></div>`;
+  $('#nf').onclick = () => fichaFurgo({}, us);
+  $$('[data-f]', m).forEach(r => r.onclick = () => fichaFurgo(lista.find(f => f.id === r.dataset.f), us));
+};
+function fichaFurgo(f, us) {
+  const val = k => esc(f[k] ?? '');
+  const v = modal(f.id ? 'Furgoneta ' + f.matricula : 'Añadir furgoneta', `<form class="form">
+    <div class="c2"><label>Matrícula</label><input name="matricula" required value="${val('matricula')}" style="text-transform:uppercase"></div>
+    <div class="c2"><label>Marca y modelo</label><input name="modelo" value="${val('modelo')}"></div>
+    <div class="c2"><label>Nombre corto</label><input name="alias" value="${val('alias')}"></div>
+    <div class="c3"><label>Asignada a</label><select name="asignadoA"><option value="">Nadie (libre)</option>${activos(us).map(u => `<option value="${esc(u.id)}" ${u.id === f.asignadoA ? 'selected' : ''}>${esc(u.nombre)}${u.furgoneta && u.furgoneta !== f.matricula ? ' (lleva ' + esc(u.furgoneta) + ')' : ''}</option>`).join('')}</select></div>
+    <div class="c3"><label>Kilómetros</label><input name="km" type="number" min="0" value="${val('km')}"></div>
+    <div class="c2"><label>ITV hasta</label><input type="date" name="itv" value="${val('itv')}"></div>
+    <div class="c2"><label>Seguro hasta</label><input type="date" name="seguro" value="${val('seguro')}"></div>
+    <div class="c2"><label>Próxima revisión</label><input type="date" name="revision" value="${val('revision')}"></div>
+    <div class="c6"><label>Notas</label><textarea name="notas">${val('notas')}</textarea></div>
+    <div class="c6"><label><input type="checkbox" name="activa" ${f.id && !f.activa ? '' : 'checked'} style="width:auto;min-height:0"> En servicio</label></div>
+    ${f.historial && f.historial.length ? `<div class="c6"><label>Quién la ha llevado</label><div class="lista-s">${f.historial.map(h => `<div><b>${esc(h.nombre)}</b> <small>desde el ${fCA(h.desde)}${h.hasta ? ' hasta el ' + fCA(h.hasta) : ', ahora'}${h.kmInicio ? `, ${Number(h.kmInicio).toLocaleString('es-ES')} km${h.kmFin ? ' a ' + Number(h.kmFin).toLocaleString('es-ES') : ''}` : ''}</small></div>`).join('')}</div></div>` : ''}
+    <p class="error c6"></p></form>`, { pie: '<button class="btn b-linea" data-x2>Cancelar</button><button class="btn b-azul" data-guardar>Guardar</button>' });
+  $('[data-x2]', v).onclick = cerrarModal;
+  alGuardar(v, async d => { await api('guardarFurgoneta', { furgoneta: { ...d, id: f.id || uuid(), activa: !!d.activa } }); S.cache.usuarios = null; cerrarModal(); toast('Furgoneta guardada'); recargar(); });
+}
+
+/* ───── Equipo ───── */
+VISTAS.equipo = async m => {
+  const lista = await usuarios(true);
+  m.innerHTML = cab('Equipo', `${activos(lista).length} personas con acceso`, '<button class="btn b-azul" id="nu">Añadir persona</button>') + `
+    <div class="tabla-w"><table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Teléfono</th><th class="r">Vacaciones</th><th>Furgoneta</th><th>Acceso</th></tr></thead><tbody>
+    ${lista.map(u => `<tr class="clic" data-u="${esc(u.id)}"><td><b>${esc(u.nombre)}</b></td><td>${esc(u.usuario)}</td><td>${u.rol === 'admin' ? '<span class="chip osc">Administrador</span>' : 'Operario'}</td>
+      <td>${esc(u.telefono || '')}</td><td class="r num">${u.diasVacaciones || 22} días</td><td class="num">${esc(u.furgoneta || '')}</td><td>${u.activo ? '<span class="chip verde">Activo</span>' : '<span class="chip rojo">Sin acceso</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+  $('#nu').onclick = () => fichaUsuario({});
+  $$('[data-u]', m).forEach(r => r.onclick = () => fichaUsuario(lista.find(u => u.id === r.dataset.u)));
+};
+function fichaUsuario(u) {
+  const v = modal(u.id ? u.nombre : 'Añadir persona', `<form class="form">
+    <div class="c3"><label>Nombre y apellidos</label><input name="nombre" required value="${esc(u.nombre || '')}"></div>
+    <div class="c3"><label>Usuario</label><input name="usuario" required value="${esc(u.usuario || '')}" placeholder="jordi.p"></div>
+    <div class="c2"><label>${u.id ? 'PIN nuevo' : 'PIN'}</label><input name="pin" inputmode="numeric" pattern="[0-9]{4,8}" ${u.id ? 'placeholder="Sin cambios"' : 'required'}></div>
+    <div class="c2"><label>Rol</label><select name="rol"><option value="operario">Operario</option><option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option></select></div>
+    <div class="c2"><label>Días de vacaciones</label><input name="diasVacaciones" type="number" min="0" value="${u.diasVacaciones || 22}"></div>
+    <div class="c3"><label>Teléfono</label><input name="telefono" type="tel" value="${esc(u.telefono || '')}"></div>
+    <div class="c3"><label>&nbsp;</label><label style="font-weight:500"><input type="checkbox" name="activo" ${u.id && !u.activo ? '' : 'checked'} style="width:auto;min-height:0"> Puede entrar en la app</label></div>
+    <p class="error c6"></p></form>`, { pie: '<button class="btn b-linea" data-x2>Cancelar</button><button class="btn b-azul" data-guardar>Guardar</button>' });
+  $('[data-x2]', v).onclick = cerrarModal;
+  alGuardar(v, async d => { await api('guardarUsuario', { usuario: { ...d, id: u.id || '', activo: !!d.activo } }); S.cache.usuarios = null; cerrarModal(); toast(u.id ? 'Cambios guardados' : 'Persona añadida'); recargar(); });
+}
+
+pintar();
+</script>
+</body>
+</html>
