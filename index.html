@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>geSolar</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  /* Colores de la marca geSolar: gris del logotipo y azul de la franja inferior */
+  --cielo:#4E4952; --cielo-2:#F0F2F6; --silicio:#4F70BF; --sol:#4F70BF; --azul-osc:#3D5AA3; --azul-claro:#E7EDF9;
+  --ambar:#E8A400; --sol-claro:#FFF1C9;
+  --cal:#F4F5F8; --blanco:#fff; --tinta:#2E2B31; --gris:#6A6670; --linea:#DCDFE6;
+  --rojo:#C23B28; --rojo-claro:#FBE7E3; --verde:#1F8455; --verde-claro:#E0F2E9; --naranja:#D9700B; --naranja-claro:#FCEBD8;
+  --nav-h:66px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+:root{padding-top:0}
+body{background:var(--cal);color:var(--tinta);font:400 17px/1.45 'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+.num{font-family:'Barlow Condensed','Barlow',system-ui,sans-serif;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--silicio);outline-offset:2px}
+#app{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 20px)}
+.sin-nav #app{padding-bottom:20px}
+
+/* Cabecera */
+.top{background:#fff;color:var(--tinta);border-bottom:1px solid var(--linea);padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 22px}
+.top-in{max-width:720px;margin:0 auto}
+.top h1{margin:0;font-size:27px;font-weight:700;line-height:1.15}
+.top p{margin:4px 0 0;color:var(--gris);font-size:15px}
+.top .fila{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.volver{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--silicio);padding:6px 0;margin:-6px 0 6px;font-weight:600;font-size:15px}
+.wrap{padding:16px;max-width:720px;margin:0 auto}
+h2{font-size:19px;margin:24px 0 10px;font-weight:700}
+h2:first-child{margin-top:4px}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border:0;border-radius:14px;font-weight:600;font-size:17px;cursor:pointer;text-decoration:none;color:inherit}
+.btn:disabled{opacity:.55}
+.btn-sol{background:var(--sol);color:#fff}
+.btn-sol:active{background:var(--azul-osc)}
+.btn-azul{background:var(--silicio);color:#fff}
+.btn-oscuro{background:var(--cielo);color:#fff}
+.btn-linea{background:#fff;border:2px solid var(--linea);color:var(--tinta)}
+.btn-rojo{background:var(--rojo);color:#fff}
+.btn-claro{background:#ECEEF2;color:var(--tinta)}
+.btn-peq{min-height:40px;padding:0 14px;font-size:15px;border-radius:10px}
+.ancho{width:100%}
+.grupo{display:flex;gap:10px;flex-wrap:wrap}
+.grupo>.btn{flex:1 1 0;min-width:120px}
+
+/* Jornada: el anillo es la pieza principal */
+.jornada{background:#fff;color:var(--tinta);border-bottom:1px solid var(--linea);padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 24px}
+.marca{max-width:720px;margin:0 auto 10px;display:block}
+.marca img{height:34px;width:auto;display:block}
+.jornada .saludo{max-width:720px;margin:0 auto;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.jornada .saludo strong{font-size:22px}
+.jornada .saludo span{color:var(--gris);font-size:15px}
+.anillo{position:relative;width:min(72vw,270px);aspect-ratio:1;margin:18px auto 6px}
+.anillo svg{width:100%;height:100%;transform:rotate(-90deg)}
+.anillo .centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.anillo .tiempo{font-size:clamp(58px,17vw,76px);font-weight:700;line-height:.9;letter-spacing:-.01em}
+.anillo .estado{margin-top:8px;font-size:16px;color:var(--gris)}
+.anillo .estado b{color:var(--silicio);font-weight:700}
+.anillo .meta{font-size:14px;color:var(--gris);margin-top:2px}
+.acciones-jornada{max-width:420px;margin:14px auto 0;display:grid;gap:10px}
+.btn-fichar{min-height:64px;font-size:20px;border-radius:999px}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sel-obra{width:100%;min-height:50px;border-radius:12px;border:2px solid var(--linea);padding:0 14px;background:var(--cielo-2);color:var(--tinta)}
+
+/* Listas */
+.lista{display:grid;gap:10px}
+.item{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit;cursor:pointer}
+button.item:active{background:#F8FAFC}
+.item .t{font-weight:700;font-size:18px;line-height:1.25}
+.item .s{color:var(--gris);font-size:15px;margin-top:2px}
+.item .pie{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:15px;color:var(--gris)}
+.prio-urgente{border-left:7px solid var(--rojo)}
+.prio-alta{border-left:7px solid var(--naranja)}
+.prio-normal{border-left:7px solid var(--silicio)}
+.prio-baja{border-left:7px solid var(--linea)}
+.fila-fichaje{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--linea)}
+.fila-fichaje:last-child{border-bottom:0}
+.fila-fichaje .h{font-size:26px;font-weight:700;width:68px}
+.fila-fichaje .d{flex:1}
+.fila-fichaje .g{font-size:14px;color:var(--gris)}
+.wrap a:not(.btn){color:var(--silicio);font-weight:600}
+.caja{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:4px 16px}
+.caja.pad{padding:16px}
+.vacio{padding:26px 18px;text-align:center;color:var(--gris);background:#fff;border:2px dashed var(--linea);border-radius:14px}
+.vacio .btn{margin-top:12px}
+
+/* Chips de estado */
+.chip{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;background:#ECEEF2;color:var(--cielo)}
+.chip.azul{background:var(--azul-claro);color:var(--azul-osc)}
+.chip.verde{background:var(--verde-claro);color:var(--verde)}
+.chip.rojo{background:var(--rojo-claro);color:var(--rojo)}
+.chip.naranja{background:var(--naranja-claro);color:#9A4F06}
+.chip.sol{background:var(--sol-claro);color:#7A5A00}
+.chip.oscuro{background:var(--cielo);color:#fff}
+
+/* Segmentos */
+.seg{display:flex;background:#E7E9EE;border-radius:12px;padding:4px;gap:4px;margin-bottom:14px;overflow-x:auto}
+.seg button{flex:1;min-height:42px;border:0;border-radius:9px;background:none;font-weight:600;font-size:15px;color:var(--gris);white-space:nowrap;padding:0 10px}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--silicio);box-shadow:0 1px 2px rgba(46,43,49,.15)}
+
+/* Semana */
+.semana{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:130px;background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px 12px 10px}
+.semana .col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.semana .barra{width:70%;max-width:28px;background:#BCCAEA;border-radius:6px 6px 2px 2px;min-height:3px}
+.semana .hoy .barra{background:var(--silicio)}
+.semana .v{font-size:13px;color:var(--gris)}
+.semana .dia{font-size:13px;font-weight:600;text-transform:capitalize}
+
+/* Datos de obra */
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--linea);border:1px solid var(--linea);border-radius:14px;overflow:hidden}
+.datos div{background:#fff;padding:12px 14px}
+.datos dt{font-size:14px;color:var(--gris)}
+.datos dd{margin:0;font-weight:600;font-size:17px}
+.datos .grande{font-size:28px;font-weight:700;line-height:1.05}
+.progreso{height:10px;background:#E7E9EE;border-radius:6px;overflow:hidden;margin-top:6px}
+.progreso i{display:block;height:100%;background:var(--silicio)}
+.progreso i.pasado{background:var(--rojo)}
+.contacto{display:flex;gap:10px;margin-top:14px}
+.contacto .btn{flex:1}
+.fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.fotos a{display:block;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#DCE4EC;position:relative}
+.fotos img{width:100%;height:100%;object-fit:cover;display:block}
+.fotos span{position:absolute;left:4px;bottom:4px;background:rgba(46,43,49,.82);color:#fff;font-size:12px;padding:1px 7px;border-radius:6px}
+
+/* Calendario */
+.cal-cab{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-cab strong{font-size:18px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:#fff;border:1px solid var(--linea);border-radius:14px;padding:10px}
+.cal .ds{font-size:13px;color:var(--gris);text-align:center;font-weight:600;padding-bottom:4px}
+.cal .d{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;position:relative;border:2px solid transparent;background:none;padding:0}
+.cal .d.finde{color:#9AA7B3}
+.cal .d.hoy{border-color:var(--cielo)}
+.cal .d.mia{background:var(--silicio);color:#fff;font-weight:700}
+.cal .d.pend{border:2px dashed var(--sol-osc, #B98500);background:var(--sol-claro)}
+.cal .d .p{position:absolute;bottom:3px;display:flex;gap:2px}
+.cal .d .p i{width:5px;height:5px;border-radius:50%;background:var(--cielo)}
+.leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--gris);margin-top:8px}
+.leyenda i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.resumen div{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:12px;text-align:center}
+.resumen b{display:block;font-size:34px;line-height:1;font-weight:700}
+.resumen span{font-size:14px;color:var(--gris)}
+.resumen .dest{background:var(--silicio);border-color:var(--silicio);color:#fff}
+.resumen .dest span{color:#E1E8F7}
+
+/* Panel */
+.cifras{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cifras>*{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px;text-align:left}
+.cifras b{display:block;font-size:38px;line-height:1;font-weight:700}
+.cifras span{font-size:15px;color:var(--gris)}
+.cifras .alerta b{color:var(--rojo)}
+.furgo{display:grid;grid-template-columns:auto 1fr;gap:12px 14px;align-items:center;background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px 16px}
+.placa{flex:none;display:flex;align-items:stretch;border:2px solid var(--tinta);border-radius:7px;overflow:hidden;background:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:.06em;line-height:1}
+.placa i{background:#1E4FB4;color:#fff;font-style:normal;font-size:11px;display:flex;align-items:flex-end;padding:3px 4px}
+.placa span{padding:6px 9px}
+.furgo .d{grid-column:1/-1;min-width:0}
+.furgo [data-km]{justify-self:end}
+.dos-campos>*{min-width:0}
+.furgo .d b{display:block}
+.furgo .d small{color:var(--gris);font-size:14px}
+.venc{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.menu{display:grid;gap:1px;background:var(--linea);border:1px solid var(--linea);border-radius:14px;overflow:hidden}
+.menu button,.menu a{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:0;padding:16px;font-weight:600;text-align:left;text-decoration:none;color:inherit;width:100%}
+.menu small{color:var(--gris);font-weight:400}
+.tabla{width:100%;border-collapse:collapse;font-size:15px;background:#fff}
+.tabla th,.tabla td{padding:9px 10px;border-bottom:1px solid var(--linea);text-align:left;white-space:nowrap}
+.tabla th{font-size:13px;color:var(--gris);font-weight:600}
+.tabla td.r,.tabla th.r{text-align:right}
+.scroll-x{overflow-x:auto;border:1px solid var(--linea);border-radius:14px;background:#fff}
+
+/* Hoja inferior (formularios) */
+.velo{position:fixed;inset:0;background:rgba(30,28,33,.5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.hoja{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:8px 18px calc(env(safe-area-inset-bottom,0px) + 18px);animation:sube .22s ease-out}
+.hoja .asa{width:44px;height:5px;border-radius:3px;background:var(--linea);margin:6px auto 10px}
+.hoja-cab{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.hoja-cab h3{margin:0;font-size:21px}
+.cerrar{border:0;background:#EEF2F6;width:40px;height:40px;border-radius:50%;font-size:22px;line-height:1}
+@keyframes sube{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hoja{animation:none}}
+
+/* Formularios */
+.campo{margin-top:14px}
+.campo label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.campo input,.campo select,.campo textarea{width:100%;min-height:52px;border:2px solid var(--linea);border-radius:12px;padding:10px 12px;background:#fff;font-size:17px}
+.campo textarea{min-height:96px;resize:vertical}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--silicio);outline:none}
+.campo .ayuda{font-size:14px;color:var(--gris);margin-top:4px}
+.dos-campos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;align-items:center;gap:10px;margin-top:16px;font-weight:600}
+.check input{width:24px;height:24px;accent-color:var(--silicio)}
+.previa{margin-top:10px;max-width:100%;max-height:220px;border-radius:12px;display:block}
+.hoja form>.btn{margin-top:20px}
+.error-form{color:var(--rojo);font-weight:600;margin-top:12px;min-height:1px}
+.foto-btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:120px;border:2px dashed var(--silicio);border-radius:14px;color:var(--silicio);font-weight:600;background:#F2F7FC;cursor:pointer}
+.foto-btn input{display:none}
+
+/* Login */
+.login{min-height:100vh;background:#fff;color:var(--tinta);display:flex;flex-direction:column;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 24px) 24px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.login-in{width:100%;max-width:380px;margin:0 auto}
+.login img{width:100%;max-width:300px;height:auto;display:block;margin:0 auto}
+.login p{color:var(--gris);margin:14px 0 26px;text-align:center}
+.login .campo input{background:var(--cielo-2)}
+.pin{letter-spacing:.4em;font-size:24px!important}
+
+/* Navegación inferior */
+nav.barra{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.barra .in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav-h)}
+nav.barra button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:600;color:var(--gris);position:relative}
+nav.barra svg{width:25px;height:25px}
+nav.barra button[aria-current="page"]{color:var(--silicio)}
+nav.barra button[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--silicio)}
+nav.barra .badge{position:absolute;top:7px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--rojo);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+/* Avisos de sistema */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 14px);background:var(--cielo);color:#fff;padding:12px 18px;border-radius:12px;font-weight:500;z-index:60;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(30,28,33,.25);display:none}
+#toast.ver{display:block}
+#toast.mal{background:var(--rojo)}
+.sin-red{background:var(--ambar);color:var(--tinta);font-weight:600;font-size:15px;padding:9px 16px;text-align:center}
+.cargando{padding:60px 20px;text-align:center;color:var(--gris)}
+.aviso-caja{background:var(--rojo-claro);color:#7F2214;border-radius:14px;padding:14px 16px;font-weight:500}
+.nota{padding:12px 0;border-bottom:1px solid var(--linea)}
+.nota:last-child{border-bottom:0}
+.nota .q{font-size:14px;color:var(--gris)}
+.texto-largo{white-space:pre-wrap}
+@media (min-width:600px){.cifras{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div id="red"></div>
+<div id="app"></div>
+<nav class="barra" id="nav" hidden aria-label="Secciones">
+  <div class="in">
+    <button data-tab="jornada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Jornada</button>
+    <button data-tab="obras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 9h14l2 10H3z"/><path d="M4 14h16M9.5 9 9 19M14.5 9l.5 10"/><circle cx="17" cy="4" r="2"/></svg>Obras</button>
+    <button data-tab="avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.4-.4-2.4z"/></svg>Avisos<span class="badge" id="badge-avisos" hidden></span></button>
+    <button data-tab="ausencias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Ausencias</button>
+    <button data-tab="mas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span id="tab-mas">Más</span><span class="badge" id="badge-mas" hidden></span></button>
+  </div>
+</nav>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ───────── Configuración y utilidades ───────── */
+const CFG = window.APP_CONFIG || {};
+const API_URL = CFG.API_URL || '';
+const META_MIN = (Number(CFG.JORNADA_HORAS) || 8) * 60;
+const app = document.getElementById('app');
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = {
+  get(k, d = null) { try { const v = localStorage.getItem('st_' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('st_' + k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k) { try { localStorage.removeItem('st_' + k); } catch {} }
+};
+const pad = n => String(n).padStart(2, '0');
+const claveDia = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const hoyISO = () => claveDia(new Date());
+const diaDe = iso => claveDia(new Date(iso));
+const hora = iso => { const d = new Date(iso); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const aFecha = f => new Date(String(f).length === 10 ? f + 'T12:00:00' : f);
+const mayus = t => t.charAt(0).toUpperCase() + t.slice(1);
+const fLarga = f => mayus(aFecha(f).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }));
+const fCorta = f => aFecha(f).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+const fHora = f => aFecha(f).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const hm = min => { min = Math.max(0, Math.round(min || 0)); return Math.floor(min / 60) + ':' + pad(min % 60); };
+const euro = n => Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+const n1 = n => Number(n || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 });
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2));
+const miniatura = id => `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w600`;
+const mapa = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+const ruta = dir => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dir)}`;
+const esAdmin = () => S.user && S.user.rol === 'admin';
+
+const TIPO_FICHAJE = { entrada: 'Entrada', pausa_inicio: 'Pausa', pausa_fin: 'Vuelta de pausa', salida: 'Salida' };
+const TAREAS = ['Replanteo y visita técnica', 'Montaje de estructura', 'Montaje de paneles', 'Cableado DC', 'Inversor y cuadro AC', 'Baterías', 'Puesta en marcha', 'Legalización y boletín', 'Mantenimiento', 'Limpieza de paneles', 'Desplazamiento', 'Otros'];
+const TIPOS_GASTO = { material: 'Material', combustible: 'Combustible', desplazamiento: 'Kilometraje', dieta: 'Dieta', alquiler: 'Alquiler de maquinaria', otro: 'Otro' };
+const CATEGORIAS_FOTO = ['Antes', 'Tejado / cubierta', 'Estructura', 'Paneles montados', 'Inversor', 'Cuadro eléctrico', 'Contador', 'Final', 'Incidencia'];
+const ESTADOS_OBRA = { planificada: ['Planificada', 'sol'], 'en curso': ['En curso', 'azul'], finalizada: ['Finalizada', 'verde'], facturada: ['Facturada', ''] };
+const ESTADOS_AVISO = { nuevo: ['Nuevo', 'rojo'], asignado: ['Asignado', 'azul'], 'en curso': ['En curso', 'oscuro'], resuelto: ['Resuelto', 'verde'], cerrado: ['Cerrado', ''] };
+const PRIORIDADES = { urgente: 'Urgente', alta: 'Alta', normal: 'Normal', baja: 'Baja' };
+const TIPOS_AVISO = { 'avería': 'Avería', mantenimiento: 'Mantenimiento', limpieza: 'Limpieza', 'garantía': 'Garantía', consulta: 'Consulta', otro: 'Otro' };
+const TIPOS_AUSENCIA = { vacaciones: 'Vacaciones', 'asuntos propios': 'Asuntos propios', permiso: 'Permiso', baja: 'Baja médica' };
+const ESTADOS_AUSENCIA = { pendiente: ['Pendiente', 'sol'], aprobada: ['Aprobada', 'verde'], rechazada: ['Rechazada', 'rojo'] };
+const chip = (mapa, k) => { const v = mapa[k] || [k, '']; return `<span class="chip ${v[1]}">${esc(v[0])}</span>`; };
+
+const S = { token: LS.get('token'), user: LS.get('user'), empresa: LS.get('empresa') || CFG.EMPRESA || 'geSolar', vista: 'jornada', params: {}, timer: null };
+
+/* ───────── Comunicación con el servidor y cola sin conexión ───────── */
+class ApiError extends Error {}
+async function llamar(action, data) {
+  const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S.token, ...data }), redirect: 'follow' });
+  let j;
+  try { j = await r.json(); } catch { throw new TypeError('respuesta no válida'); }
+  if (!j.ok) {
+    if (j.error === 'SESION') { salir(true); throw new ApiError('Tu sesión ha caducado. Vuelve a entrar.'); }
+    throw new ApiError(j.error || 'Error del servidor');
+  }
+  return j.data;
+}
+async function api(action, data = {}, opt = {}) {
+  const clave = 'c_' + action + '_' + JSON.stringify(data);
+  try {
+    if (!navigator.onLine) throw new TypeError('offline');
+    const res = await llamar(action, data);
+    if (opt.cache) LS.set(clave, res);
+    return res;
+  } catch (e) {
+    if (e instanceof ApiError) throw e;
+    if (opt.cola) {
+      if (!encolar(action, data)) throw new Error('No hay espacio en el móvil para guardarlo sin conexión. Inténtalo cuando tengas cobertura.');
+      return { encolado: true };
+    }
+    if (opt.cache) { const c = LS.get(clave); if (c !== null) { S.desdeCache = true; return c; } }
+    throw new Error('Sin conexión. Revisa la cobertura y vuelve a intentarlo.');
+  }
+}
+const cola = () => LS.get('cola', []);
+function encolar(action, data) {
+  const c = cola(); c.push({ action, data: { ...data, origen: 'sin conexión' }, ts: Date.now() });
+  const ok = LS.set('cola', c); pintarRed(); return ok;
+}
+let vaciando = false;
+async function vaciarCola() {
+  if (vaciando || !navigator.onLine || !S.token) return;
+  vaciando = true;
+  let enviados = 0;
+  try {
+    while (cola().length) {
+      const [op] = cola();
+      try { await llamar(op.action, op.data); enviados++; }
+      catch (e) {
+        if (!(e instanceof ApiError)) break;           // sigue sin red: se reintenta más tarde
+        LS.set('fallidos', [...LS.get('fallidos', []), { ...op, error: e.message }]);
+        toast('No se pudo enviar un registro guardado: ' + e.message, true);
+      }
+      LS.set('cola', cola().slice(1));
+    }
+  } finally { vaciando = false; pintarRed(); }
+  if (enviados) { toast(enviados === 1 ? 'Registro pendiente enviado' : `${enviados} registros pendientes enviados`); if (S.vista === 'jornada') render(); }
+}
+function pintarRed() {
+  const n = cola().length, el = $('#red');
+  if (!navigator.onLine) el.innerHTML = `<div class="sin-red">Sin conexión.${n ? ` ${n} ${n === 1 ? 'registro se enviará' : 'registros se enviarán'} al recuperar cobertura.` : ' Puedes seguir fichando y anotando horas.'}</div>`;
+  else if (n) el.innerHTML = `<div class="sin-red">Enviando ${n} ${n === 1 ? 'registro pendiente' : 'registros pendientes'}…</div>`;
+  else el.innerHTML = '';
+}
+addEventListener('online', () => { pintarRed(); vaciarCola(); });
+addEventListener('offline', pintarRed);
+setInterval(vaciarCola, 60000);
+
+/* ───────── Interfaz común ───────── */
+let tToast;
+function toast(msg, mal = false) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'ver' + (mal ? ' mal' : '');
+  clearTimeout(tToast); tToast = setTimeout(() => t.className = '', mal ? 5000 : 3000);
+}
+function gps() {
+  return new Promise(res => {
+    if (!navigator.geolocation) return res({});
+    navigator.geolocation.getCurrentPosition(
+      p => res({ lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6), precision: Math.round(p.coords.accuracy) }),
+      () => res({}), { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+  });
+}
+async function comprimir(file, max = 1600, q = 0.72) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = url; });
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', q);
+  } finally { URL.revokeObjectURL(url); }
+}
+function cabecera(titulo, sub = '', { volver = false, extra = '' } = {}) {
+  return `<header class="top"><div class="top-in">${volver ? `<button class="volver" data-volver>‹ Volver</button>` : ''}
+    <div class="fila"><div><h1>${esc(titulo)}</h1>${sub ? `<p>${sub}</p>` : ''}</div>${extra}</div></div></header>`;
+}
+function errorVista(e) {
+  return cabecera('No se ha podido cargar') + `<div class="wrap"><div class="vacio">${esc(e.message)}<br><button class="btn btn-azul" onclick="render()">Reintentar</button></div></div>`;
+}
+
+/* Hoja inferior con soporte para el botón atrás de Android */
+let hojaAbierta = null;
+function abrirHoja(titulo, html, alMontar) {
+  quitarHoja();
+  const v = document.createElement('div');
+  v.className = 'velo';
+  v.innerHTML = `<div class="hoja" role="dialog" aria-modal="true" aria-label="${esc(titulo)}"><div class="asa"></div>
+    <div class="hoja-cab"><h3>${esc(titulo)}</h3><button class="cerrar" aria-label="Cerrar">×</button></div>${html}</div>`;
+  v.addEventListener('click', e => { if (e.target === v) cerrarHoja(); });
+  $('.cerrar', v).onclick = cerrarHoja;
+  document.body.appendChild(v);
+  hojaAbierta = v;
+  history.pushState({ hoja: 1 }, '');
+  const primero = $('input:not([type=hidden]):not([type=file]),select,textarea', v);
+  if (alMontar) alMontar(v);
+  if (primero && !primero.dataset.nofocus) setTimeout(() => primero.focus({ preventScroll: true }), 50);
+  return v;
+}
+function quitarHoja() { if (hojaAbierta) { hojaAbierta.remove(); hojaAbierta = null; } }
+function cerrarHoja() { if (hojaAbierta) history.back(); }
+function confirmar(texto, si = 'Confirmar', peligro = false) {
+  return new Promise(res => {
+    let r = false;
+    const v = abrirHoja('¿Seguro?', `<p>${esc(texto)}</p><div class="grupo" style="margin-top:18px">
+      <button class="btn btn-linea" data-no>Cancelar</button><button class="btn ${peligro ? 'btn-rojo' : 'btn-oscuro'}" data-si>${esc(si)}</button></div>`);
+    $('[data-no]', v).onclick = () => cerrarHoja();
+    $('[data-si]', v).onclick = () => { r = true; cerrarHoja(); };
+    const obs = new MutationObserver(() => { if (!document.body.contains(v)) { obs.disconnect(); res(r); } });
+    obs.observe(document.body, { childList: true });
+  });
+}
+/** Envía un formulario de la hoja con estado de carga y errores visibles. */
+function enviarForm(v, fn) {
+  const f = $('form', v);
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const b = $('button[type=submit]', f), err = $('.error-form', f), txt = b.textContent;
+    b.disabled = true; b.textContent = 'Guardando…'; err.textContent = '';
+    try { await fn(Object.fromEntries(new FormData(f)), f); }
+    catch (x) { err.textContent = x.message; b.disabled = false; b.textContent = txt; }
+  });
+}
+function campoFoto(nombre = 'foto', texto = 'Hacer o elegir foto') {
+  return `<label class="foto-btn"><input type="file" accept="image/*" capture="environment" data-foto="${nombre}" data-nofocus="1">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg><span>${texto}</span></label><img class="previa" hidden alt="">`;
+}
+function montarFoto(v, destino) {
+  const inp = $('[data-foto]', v); if (!inp) return;
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    $('.foto-btn span', v).textContent = 'Preparando foto…';
+    try {
+      destino.foto = await comprimir(f);
+      const p = $('.previa', v); p.src = destino.foto; p.hidden = false;
+      $('.foto-btn span', v).textContent = 'Cambiar foto';
+    } catch { $('.foto-btn span', v).textContent = 'No se pudo leer la imagen. Prueba otra.'; }
+  };
+}
+
+/* ───────── Navegación ───────── */
+const VISTAS = { jornada: vJornada, obras: vObras, obra: vObra, avisos: vAvisos, aviso: vAviso, ausencias: vAusencias, mas: vMas, informe: vInforme, usuarios: vUsuarios, historial: vHistorial, furgonetas: vFurgonetas };
+const PESTANA = { obra: 'obras', aviso: 'avisos', informe: 'mas', usuarios: 'mas', historial: 'jornada', furgonetas: 'mas' };
+function ir(vista, params = {}, reemplazar = false) {
+  S.vista = vista; S.params = params;
+  history[reemplazar ? 'replaceState' : 'pushState']({ vista, params }, '');
+  render();
+}
+addEventListener('popstate', e => {
+  if (hojaAbierta) { quitarHoja(); return; }
+  const st = e.state;
+  if (st && st.vista) { S.vista = st.vista; S.params = st.params || {}; render(); }
+});
+async function render() {
+  clearInterval(S.timer); S.desdeCache = false;
+  if (!S.token) return vLogin();
+  document.body.classList.remove('sin-nav');
+  $('#nav').hidden = false;
+  $('#tab-mas').textContent = esAdmin() ? 'Panel' : 'Más';
+  const tab = PESTANA[S.vista] || S.vista;
+  $$('nav [data-tab]').forEach(b => b.dataset.tab === tab ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+  app.innerHTML = '<div class="cargando">Cargando…</div>';
+  scrollTo(0, 0);
+  try { await VISTAS[S.vista](S.params || {}); }
+  catch (e) { app.innerHTML = errorVista(e); }
+  $$('[data-volver]').forEach(b => b.onclick = () => history.back());
+  if (S.desdeCache) toast('Sin conexión: mostrando los últimos datos guardados');
+}
+$$('nav [data-tab]').forEach(b => b.onclick = () => ir(b.dataset.tab, {}, true));
+function insignias(d) {
+  const a = $('#badge-avisos'), m = $('#badge-mas');
+  a.hidden = !d.avisosMios; a.textContent = d.avisosMios || '';
+  m.hidden = !d.pendientes; m.textContent = d.pendientes || '';
+}
+
+/* ───────── Acceso ───────── */
+function vLogin() {
+  $('#nav').hidden = true; document.body.classList.add('sin-nav');
+  const sinConfig = !API_URL || API_URL.includes('PEGA_AQUI');
+  app.innerHTML = `<main class="login"><div class="login-in">
+    <img src="logo.png" alt="geSolar energy solutions">
+    <p>Jornada, obras, avisos y furgonetas del equipo.</p>
+    ${sinConfig ? `<div class="aviso-caja">Falta configurar el servidor. Pega la URL de Apps Script en <b>config.js</b>.</div>` : ''}
+    <form id="f-login" autocomplete="on">
+      <div class="campo"><label for="l-u">Usuario</label><input id="l-u" name="usuario" autocapitalize="none" autocomplete="username" required value="${esc(LS.get('ultimoUsuario', ''))}"></div>
+      <div class="campo"><label for="l-p">PIN</label><input id="l-p" class="pin num" name="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="current-password" required></div>
+      <button class="btn btn-sol ancho" type="submit" style="margin-top:22px">Entrar</button>
+      <p class="error-form" role="alert"></p>
+    </form></div></main>`;
+  $('#f-login').onsubmit = async e => {
+    e.preventDefault();
+    const f = e.target, b = $('button', f), err = $('.error-form', f);
+    b.disabled = true; b.textContent = 'Entrando…'; err.textContent = '';
+    try {
+      const d = Object.fromEntries(new FormData(f));
+      const r = await llamar('login', d);
+      S.token = r.token; S.user = r.usuario; S.empresa = r.empresa || S.empresa;
+      LS.set('token', r.token); LS.set('user', r.usuario); LS.set('empresa', S.empresa); LS.set('ultimoUsuario', d.usuario);
+      ir('jornada', {}, true); vaciarCola();
+    } catch (x) {
+      err.textContent = x instanceof ApiError ? x.message : 'No hay conexión con el servidor. Para entrar la primera vez necesitas cobertura.';
+      b.disabled = false; b.textContent = 'Entrar';
+    }
+  };
+}
+function salir(caducada = false) {
+  if (!caducada && cola().length && !window.confirm('Tienes registros sin enviar. Si cierras sesión se perderán. ¿Cerrar igualmente?')) return;
+  ['token', 'user', 'cola'].forEach(LS.del);
+  Object.keys(localStorage).filter(k => k.startsWith('st_c_')).forEach(k => localStorage.removeItem(k));
+  S.token = null; S.user = null; quitarHoja(); render();
+}
+
+/* ───────── Jornada ───────── */
+function calcular(lista, ahora = Date.now()) {
+  const ord = [...lista].sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora));
+  const dias = {}; let ini = null, dia = null;
+  for (const f of ord) {
+    const t = new Date(f.fechaHora).getTime();
+    if (f.tipo === 'entrada') { ini = t; dia = diaDe(f.fechaHora); dias[dia] = dias[dia] || 0; continue; }
+    if (!dia) continue;
+    if (f.tipo === 'pausa_inicio') { if (ini) dias[dia] += (t - ini) / 6e4; ini = null; }
+    else if (f.tipo === 'pausa_fin') ini = t;
+    else if (f.tipo === 'salida') { if (ini) dias[dia] += (t - ini) / 6e4; ini = null; dia = null; }
+  }
+  if (ini && dia) dias[dia] += (ahora - ini) / 6e4;
+  const ultimo = ord[ord.length - 1];
+  return { dias, estado: ultimo ? ultimo.tipo : 'salida', abierto: !!(dia), diaAbierto: dia };
+}
+async function vJornada() {
+  const d = await api('inicio', {}, { cache: true });
+  if (d.usuario) { S.user = d.usuario; LS.set('user', d.usuario); }
+  insignias(d);
+  const pend = cola().filter(c => c.action === 'fichar').map(c => c.data);
+  const mapaF = new Map();
+  [...(d.ultimo ? [d.ultimo] : []), ...d.hoy, ...pend].forEach(f => mapaF.set(f.id, f));
+  S.jor = { fichajes: [...mapaF.values()], semana: d.semana, obras: d.obras, furgoneta: d.furgoneta };
+  pintarJornada();
+  S.timer = setInterval(() => { if (calcular(S.jor.fichajes).estado !== 'salida') pintarAnillo(); }, 30000);
+}
+function pintarAnillo() {
+  const c = calcular(S.jor.fichajes), hoy = hoyISO();
+  let min = c.dias[hoy] || 0;
+  if (c.abierto && c.diaAbierto !== hoy) min = c.dias[c.diaAbierto] || 0;
+  const r = 104, L = 2 * Math.PI * r, p = Math.min(min / META_MIN, 1);
+  const extra = min > META_MIN ? Math.min((min - META_MIN) / META_MIN, 1) : 0;
+  const el = $('#anillo'); if (!el) return c;
+  const etiqueta = { entrada: '<b>Trabajando</b>', pausa_fin: '<b>Trabajando</b>', pausa_inicio: '<b>En pausa</b>', salida: c.dias[hoy] ? 'Jornada terminada' : 'Sin empezar' }[c.estado];
+  el.innerHTML = `<svg viewBox="0 0 240 240" aria-hidden="true">
+      <circle cx="120" cy="120" r="${r}" fill="none" stroke="#E8EBF1" stroke-width="16"/>
+      <circle cx="120" cy="120" r="${r}" fill="none" stroke="#4F70BF" stroke-width="16" stroke-linecap="round" stroke-dasharray="${L * p} ${L}"/>
+      ${extra ? `<circle cx="120" cy="120" r="${r}" fill="none" stroke="#E8A400" stroke-width="16" stroke-linecap="round" stroke-dasharray="${L * extra} ${L}"/>` : ''}
+    </svg>
+    <div class="centro"><div class="tiempo num">${hm(min)}</div><div class="estado">${etiqueta}</div>
+    <div class="meta">de ${hm(META_MIN)} h${c.abierto && c.diaAbierto !== hoy ? ' · empezó ayer' : ''}</div></div>`;
+  el.setAttribute('aria-label', `${hm(min)} horas trabajadas hoy`);
+  return c;
+}
+function pintarJornada() {
+  const { semana, obras } = S.jor;
+  const hoy = hoyISO();
+  const c = calcular(S.jor.fichajes);
+  const deHoy = S.jor.fichajes.filter(f => diaDe(f.fechaHora) === hoy || (c.abierto && diaDe(f.fechaHora) === c.diaAbierto)).sort((a, b) => new Date(b.fechaHora) - new Date(a.fechaHora));
+  const pendIds = new Set(cola().filter(x => x.action === 'fichar').map(x => x.data.id));
+  let botones;
+  if (c.estado === 'salida') {
+    botones = `<select class="sel-obra" id="obra-hoy" aria-label="Dónde trabajas hoy">
+        <option value="">Dónde trabajas hoy (opcional)</option>
+        ${obras.map(o => `<option value="${esc(o.id)}" ${LS.get('obraHoy') === o.id ? 'selected' : ''}>${esc(o.cliente)}${o.municipio ? ' (' + esc(o.municipio) + ')' : ''}</option>`).join('')}
+      </select>
+      <button class="btn btn-sol btn-fichar" data-fichar="entrada">Empezar jornada</button>`;
+  } else if (c.estado === 'pausa_inicio') {
+    botones = `<button class="btn btn-sol btn-fichar" data-fichar="pausa_fin">Volver al trabajo</button>
+      <button class="btn btn-claro" data-fichar="salida">Terminar jornada</button>`;
+  } else {
+    botones = `<div class="dos"><button class="btn btn-claro btn-fichar" data-fichar="pausa_inicio">Pausa</button>
+      <button class="btn btn-sol btn-fichar" data-fichar="salida">Terminar</button></div>`;
+  }
+  const maxSem = Math.max(META_MIN, ...semana.map(s => s.fecha === hoy ? (c.dias[hoy] || 0) : s.minutos));
+  app.innerHTML = `<section class="jornada">
+      <div class="marca"><img src="logo.png" alt="geSolar energy solutions"></div>
+      <div class="saludo"><strong>Hola, ${esc((S.user.nombre || '').split(' ')[0])}</strong><span>${fLarga(hoy)}</span></div>
+      <div class="anillo" id="anillo" role="img"></div>
+      <div class="acciones-jornada">${botones}</div>
+    </section>
+    <div class="wrap">
+      <h2>Registros de hoy</h2>
+      ${deHoy.length ? `<div class="caja">${deHoy.map(f => `<div class="fila-fichaje">
+          <div class="h num">${hora(f.fechaHora)}</div>
+          <div class="d"><div><b>${TIPO_FICHAJE[f.tipo]}</b>${pendIds.has(f.id) ? ' <span class="chip sol">Pendiente de enviar</span>' : ''}</div>
+          <div class="g">${f.lat ? `<a href="${mapa(f.lat, f.lng)}" target="_blank" rel="noopener">Ubicación registrada${f.precision ? ' (±' + f.precision + ' m)' : ''}</a>` : 'Sin ubicación'}</div></div></div>`).join('')}</div>`
+        : `<div class="vacio">Aún no has fichado hoy. Pulsa «Empezar jornada» al llegar a la obra o a la nave.</div>`}
+      <h2>Tu furgoneta</h2>
+      ${S.jor.furgoneta ? tarjetaFurgo(S.jor.furgoneta, true) : '<div class="vacio">No tienes ninguna furgoneta asignada. Si vas a usar una, pide en la oficina que te la asignen.</div>'}
+      <h2>Últimos 7 días</h2>
+      <div class="semana">${semana.map(s => {
+        const m = s.fecha === hoy ? (c.dias[hoy] || 0) : s.minutos;
+        return `<div class="col ${s.fecha === hoy ? 'hoy' : ''}"><span class="v num">${m ? hm(m) : ''}</span>
+          <div class="barra" style="height:${Math.max(3, (m / maxSem) * 72)}px"></div>
+          <span class="dia">${aFecha(s.fecha).toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', '')}</span></div>`; }).join('')}</div>
+      <div style="margin-top:12px"><button class="btn btn-linea ancho" onclick="ir('historial')">Ver mi registro de jornada</button></div>
+    </div>`;
+  pintarAnillo();
+  $$('[data-fichar]').forEach(b => b.onclick = () => fichar(b.dataset.fichar, b));
+  const sel = $('#obra-hoy'); if (sel) sel.onchange = () => LS.set('obraHoy', sel.value);
+  const km = $('[data-km]'); if (km) km.onclick = () => formKm(S.jor.furgoneta);
+}
+async function fichar(tipo, boton) {
+  if (tipo === 'salida' && !(await confirmar('Vas a terminar la jornada de hoy.', 'Terminar jornada'))) return;
+  $$('[data-fichar]').forEach(b => b.disabled = true);
+  boton.textContent = 'Obteniendo ubicación…';
+  const pos = await gps();
+  const rec = { id: uuid(), tipo, fechaHora: new Date().toISOString(), ...pos, obraId: tipo === 'entrada' ? ($('#obra-hoy')?.value || '') : '' };
+  try {
+    const r = await api('fichar', rec, { cola: true });
+    S.jor.fichajes.push(rec);
+    toast(r.encolado ? 'Guardado sin conexión. Se enviará al recuperar cobertura.' : `${TIPO_FICHAJE[tipo]} registrada a las ${hora(rec.fechaHora)}${pos.lat ? '' : ' (sin ubicación)'}`);
+  } catch (e) { toast(e.message, true); }
+  pintarJornada();
+}
+async function vHistorial() {
+  const hasta = hoyISO(), desde = claveDia(new Date(Date.now() - 30 * 864e5));
+  const d = await api('misFichajes', { desde, hasta }, { cache: true });
+  const total = d.jornadas.reduce((s, j) => s + j.minutos, 0);
+  app.innerHTML = cabecera('Mi registro de jornada', 'Últimos 30 días', { volver: true }) + `<div class="wrap">
+    <div class="resumen" style="grid-template-columns:1fr 1fr"><div class="dest"><b class="num">${hm(total)}</b><span>horas trabajadas</span></div>
+      <div><b class="num">${d.jornadas.length}</b><span>días con fichaje</span></div></div>
+    <h2>Por día</h2>
+    ${d.jornadas.length ? `<div class="scroll-x"><table class="tabla"><thead><tr><th>Día</th><th>Entrada</th><th>Salida</th><th class="r">Pausas</th><th class="r">Horas</th></tr></thead><tbody>
+      ${[...d.jornadas].reverse().map(j => `<tr><td>${fCorta(j.fecha)}</td><td>${hora(j.entrada)}</td><td>${j.salida ? hora(j.salida) : '<span class="chip rojo">Sin salida</span>'}</td><td class="r">${j.pausas}</td><td class="r num"><b>${hm(j.minutos)}</b></td></tr>`).join('')}
+    </tbody></table></div>` : '<div class="vacio">No hay fichajes en este periodo.</div>'}
+    <p style="color:var(--gris);font-size:14px">Si ves un error en tus fichajes, avisa a la oficina. Los registros no se pueden modificar desde la app.</p></div>`;
+}
+
+/* ───────── Obras ───────── */
+async function vObras({ estado = 'en curso' } = {}) {
+  const lista = await api('listarObras', { estado }, { cache: true });
+  const seg = Object.entries(ESTADOS_OBRA).map(([k, v]) => `<button aria-pressed="${k === estado}" data-estado="${k}">${v[0]}</button>`).join('');
+  app.innerHTML = cabecera('Obras', 'Instalaciones y trabajos', { extra: esAdmin() ? `<button class="btn btn-sol btn-peq" id="nueva-obra">Nueva obra</button>` : '' }) +
+    `<div class="wrap"><div class="seg" role="group" aria-label="Estado">${seg}</div>
+    ${lista.length ? `<div class="lista">${lista.map(o => {
+      const pct = o.horasPrevistas ? Math.min(100, (o.horas / o.horasPrevistas) * 100) : 0;
+      return `<button class="item" data-obra="${esc(o.id)}">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div class="t">${esc(o.cliente)}</div>${chip(ESTADOS_OBRA, o.estado)}</div>
+        <div class="s">${esc([o.codigo, o.municipio].filter(Boolean).join(', '))}</div>
+        <div class="pie"><span>${o.kwp ? `<b class="num">${n1(o.kwp)} kWp</b>` : ''}${o.paneles ? ` con ${o.paneles} paneles` : ''}</span>
+          <span class="num">${n1(o.horas)} h${o.horasPrevistas ? ' de ' + n1(o.horasPrevistas) : ''}</span></div>
+        ${o.horasPrevistas ? `<div class="progreso"><i class="${o.horas > o.horasPrevistas ? 'pasado' : ''}" style="width:${pct}%"></i></div>` : ''}
+      </button>`; }).join('')}</div>`
+      : `<div class="vacio">No hay obras ${ESTADOS_OBRA[estado][0].toLowerCase()}s.${esAdmin() ? '<br><button class="btn btn-azul" id="nueva-obra-2">Crear la primera obra</button>' : ''}</div>`}
+    </div>`;
+  $$('[data-estado]').forEach(b => b.onclick = () => ir('obras', { estado: b.dataset.estado }, true));
+  $$('[data-obra]').forEach(b => b.onclick = () => ir('obra', { id: b.dataset.obra }));
+  [$('#nueva-obra'), $('#nueva-obra-2')].forEach(b => b && (b.onclick = () => formObra()));
+}
+async function vObra({ id }) {
+  const d = await api('obra', { id }, { cache: true });
+  const o = d.obra;
+  const pct = o.horasPrevistas ? Math.min(100, (o.horas / o.horasPrevistas) * 100) : 0;
+  app.innerHTML = cabecera(o.cliente, esc([o.codigo, o.municipio].filter(Boolean).join(', ')), { volver: true, extra: chip(ESTADOS_OBRA, o.estado) }) + `<div class="wrap">
+    <div class="grupo"><button class="btn btn-sol" data-add="horas">Anotar horas</button><button class="btn btn-azul" data-add="gasto">Gasto</button><button class="btn btn-azul" data-add="foto">Foto</button></div>
+    <h2>Instalación</h2>
+    <dl class="datos">
+      <div><dt>Potencia</dt><dd class="grande num">${o.kwp ? n1(o.kwp) + ' kWp' : 'Sin indicar'}</dd></div>
+      <div><dt>Paneles</dt><dd class="grande num">${o.paneles || 'Sin indicar'}</dd></div>
+      <div><dt>Horas imputadas</dt><dd class="grande num">${n1(o.horas)}${o.horasPrevistas ? `<small style="font-size:16px;color:var(--gris)"> / ${n1(o.horasPrevistas)}</small>` : ''}</dd>
+        ${o.horasPrevistas ? `<div class="progreso"><i class="${o.horas > o.horasPrevistas ? 'pasado' : ''}" style="width:${pct}%"></i></div>` : ''}</div>
+      <div><dt>Gastos</dt><dd class="grande num">${euro(o.gastos)}</dd></div>
+      <div style="grid-column:1/-1"><dt>Inversor</dt><dd>${esc(o.inversor) || 'Sin indicar'}</dd></div>
+      ${o.direccion ? `<div style="grid-column:1/-1"><dt>Dirección</dt><dd>${esc(o.direccion)}${o.municipio ? ', ' + esc(o.municipio) : ''}</dd></div>` : ''}
+      ${o.fechaInicio ? `<div><dt>Inicio</dt><dd>${fCorta(o.fechaInicio)}</dd></div><div><dt>Fin previsto</dt><dd>${o.fechaFin ? fCorta(o.fechaFin) : 'Sin fecha'}</dd></div>` : ''}
+      ${o.notas ? `<div style="grid-column:1/-1"><dt>Notas</dt><dd class="texto-largo" style="font-weight:400">${esc(o.notas)}</dd></div>` : ''}
+    </dl>
+    <div class="contacto">
+      ${o.direccion ? `<a class="btn btn-linea" href="${ruta(o.direccion + ' ' + (o.municipio || ''))}" target="_blank" rel="noopener">Cómo llegar</a>` : ''}
+      ${o.telefono ? `<a class="btn btn-linea" href="tel:${esc(String(o.telefono).replace(/\s/g, ''))}">Llamar al cliente</a>` : ''}
+    </div>
+    ${esAdmin() ? `<div style="margin-top:10px"><button class="btn btn-linea ancho" id="editar-obra">Editar obra</button></div>` : ''}
+
+    <h2>Fotos (${d.fotos.length})</h2>
+    ${d.fotos.length ? `<div class="fotos">${d.fotos.map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${miniatura(f.fileId)}" alt="${esc(f.categoria)}"><span>${esc(f.categoria)}</span></a>`).join('')}</div>`
+      : `<div class="vacio">Sin fotos. Documenta el tejado antes de montar y el inversor al terminar.</div>`}
+
+    <h2>Horas (${n1(o.horas)} h)</h2>
+    ${d.partes.length ? `<div class="caja">${d.partes.map(p => `<div class="nota"><div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(p.tarea) || 'Trabajo'}</b><b class="num">${n1(p.horas)} h</b></div>
+      <div class="q">${fCorta(p.fecha)}, ${esc(p.nombre)}${p.facturable === false || p.facturable === 'FALSE' ? ', no facturable' : ''}</div>${p.nota ? `<div class="texto-largo">${esc(p.nota)}</div>` : ''}</div>`).join('')}</div>`
+      : `<div class="vacio">Nadie ha anotado horas en esta obra.</div>`}
+
+    <h2>Gastos (${euro(o.gastos)})</h2>
+    ${d.gastos.length ? `<div class="caja">${d.gastos.map(g => `<div class="nota"><div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(TIPOS_GASTO[g.tipo] || g.tipo)}</b><b class="num">${euro(g.importe)}</b></div>
+      <div class="q">${fCorta(g.fecha)}, ${esc(g.nombre)}${g.km ? `, ${n1(g.km)} km` : ''}${g.ticketUrl ? `, <a href="${esc(g.ticketUrl)}" target="_blank" rel="noopener">ver ticket</a>` : ''}</div>${g.descripcion ? `<div>${esc(g.descripcion)}</div>` : ''}</div>`).join('')}</div>`
+      : `<div class="vacio">Sin gastos registrados.</div>`}
+
+    ${d.avisos.length ? `<h2>Avisos de esta instalación</h2><div class="lista">${d.avisos.map(itemAviso).join('')}</div>` : ''}
+  </div>`;
+  $$('[data-add]').forEach(b => b.onclick = () => ({ horas: formParte, gasto: formGasto, foto: formFoto })[b.dataset.add](o));
+  $$('[data-aviso]').forEach(b => b.onclick = () => ir('aviso', { id: b.dataset.aviso }));
+  const ed = $('#editar-obra'); if (ed) ed.onclick = () => formObra(o);
+}
+function formParte(o) {
+  const v = abrirHoja('Anotar horas en ' + o.cliente, `<form>
+    <div class="dos-campos"><div class="campo"><label for="p-f">Fecha</label><input id="p-f" type="date" name="fecha" value="${hoyISO()}" max="${hoyISO()}" required data-nofocus="1"></div>
+    <div class="campo"><label for="p-h">Horas</label><input id="p-h" class="num" type="number" name="horas" min="0.25" max="16" step="0.25" inputmode="decimal" required placeholder="4,5"></div></div>
+    <div class="campo"><label for="p-t">Tarea</label><select id="p-t" name="tarea">${TAREAS.map(t => `<option>${t}</option>`).join('')}</select></div>
+    <div class="campo"><label for="p-n">Nota (opcional)</label><textarea id="p-n" name="nota" placeholder="Por ejemplo: montados 12 de 18 paneles, falta la fila sur"></textarea></div>
+    <label class="check"><input type="checkbox" name="facturable" checked> Se factura al cliente</label>
+    <button class="btn btn-sol ancho" type="submit">Guardar horas</button><p class="error-form" role="alert"></p></form>`);
+  enviarForm(v, async d => {
+    const pos = await gps();
+    const r = await api('registrarParte', { id: uuid(), obraId: o.id, fecha: d.fecha, horas: Number(String(d.horas).replace(',', '.')), tarea: d.tarea, nota: d.nota, facturable: !!d.facturable, ...pos }, { cola: true });
+    cerrarHoja(); toast(r.encolado ? 'Horas guardadas sin conexión. Se enviarán más tarde.' : 'Horas guardadas'); if (!r.encolado) setTimeout(render, 300);
+  });
+}
+function formGasto(o) {
+  const extra = {};
+  const v = abrirHoja('Gasto en ' + o.cliente, `<form>
+    <div class="campo"><label for="g-t">Tipo</label><select id="g-t" name="tipo">${Object.entries(TIPOS_GASTO).map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></div>
+    <div class="dos-campos"><div class="campo"><label for="g-i">Importe (€)</label><input id="g-i" class="num" type="number" name="importe" min="0" step="0.01" inputmode="decimal" required></div>
+    <div class="campo"><label for="g-f">Fecha</label><input id="g-f" type="date" name="fecha" value="${hoyISO()}" max="${hoyISO()}" required></div></div>
+    <div class="campo" id="g-km" hidden><label for="g-k">Kilómetros</label><input id="g-k" class="num" type="number" name="km" min="0" step="1" inputmode="numeric"></div>
+    <div class="campo"><label for="g-d">Concepto</label><input id="g-d" name="descripcion" placeholder="Por ejemplo: 20 m de cable solar 6 mm²"></div>
+    <div class="campo"><label>Foto del ticket</label>${campoFoto('foto', 'Fotografiar ticket')}</div>
+    <button class="btn btn-sol ancho" type="submit">Guardar gasto</button><p class="error-form" role="alert"></p></form>`, v => {
+      const t = $('#g-t', v); t.onchange = () => { $('#g-km', v).hidden = t.value !== 'desplazamiento'; };
+      montarFoto(v, extra);
+    });
+  enviarForm(v, async d => {
+    const r = await api('registrarGasto', { id: uuid(), obraId: o.id, ...d, importe: Number(String(d.importe).replace(',', '.')), foto: extra.foto || '' }, { cola: true });
+    cerrarHoja(); toast(r.encolado ? 'Gasto guardado sin conexión. Se enviará más tarde.' : 'Gasto guardado'); if (!r.encolado) setTimeout(render, 300);
+  });
+}
+function formFoto(o, avisoId = '') {
+  const extra = {};
+  const v = abrirHoja('Añadir foto', `<form>
+    <div class="campo"><label for="f-c">¿Qué muestra?</label><select id="f-c" name="categoria" data-nofocus="1">${CATEGORIAS_FOTO.map(c => `<option ${avisoId && c === 'Incidencia' ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div class="campo">${campoFoto()}</div>
+    <button class="btn btn-sol ancho" type="submit">Subir foto</button><p class="error-form" role="alert"></p></form>`, v => montarFoto(v, extra));
+  enviarForm(v, async d => {
+    if (!extra.foto) throw new Error('Haz o elige una foto primero.');
+    const pos = await gps();
+    const r = await api('subirFoto', { id: uuid(), obraId: o ? o.id : '', avisoId, categoria: d.categoria, foto: extra.foto, ...pos }, { cola: true });
+    cerrarHoja(); toast(r.encolado ? 'Foto guardada sin conexión. Se subirá más tarde.' : 'Foto subida'); if (!r.encolado) setTimeout(render, 300);
+  });
+}
+function formObra(o = {}) {
+  const val = k => esc(o[k] ?? '');
+  const v = abrirHoja(o.id ? 'Editar obra' : 'Nueva obra', `<form>
+    <div class="campo"><label for="o-c">Cliente</label><input id="o-c" name="cliente" required value="${val('cliente')}"></div>
+    <div class="dos-campos"><div class="campo"><label for="o-t">Teléfono</label><input id="o-t" name="telefono" type="tel" value="${val('telefono')}"></div>
+    <div class="campo"><label for="o-co">Código</label><input id="o-co" name="codigo" value="${val('codigo')}" placeholder="Automático"></div></div>
+    <div class="campo"><label for="o-d">Dirección</label><input id="o-d" name="direccion" value="${val('direccion')}"></div>
+    <div class="campo"><label for="o-m">Municipio</label><input id="o-m" name="municipio" value="${val('municipio')}"></div>
+    <div class="dos-campos"><div class="campo"><label for="o-k">Potencia (kWp)</label><input id="o-k" class="num" name="kwp" type="number" step="0.01" inputmode="decimal" value="${val('kwp')}"></div>
+    <div class="campo"><label for="o-p">Nº de paneles</label><input id="o-p" class="num" name="paneles" type="number" inputmode="numeric" value="${val('paneles')}"></div></div>
+    <div class="campo"><label for="o-i">Inversor / baterías</label><input id="o-i" name="inversor" value="${val('inversor')}" placeholder="Marca, modelo y potencia"></div>
+    <div class="dos-campos"><div class="campo"><label for="o-fi">Inicio</label><input id="o-fi" type="date" name="fechaInicio" value="${val('fechaInicio')}"></div>
+    <div class="campo"><label for="o-ff">Fin previsto</label><input id="o-ff" type="date" name="fechaFin" value="${val('fechaFin')}"></div></div>
+    <div class="dos-campos"><div class="campo"><label for="o-hp">Horas previstas</label><input id="o-hp" class="num" name="horasPrevistas" type="number" step="0.5" value="${val('horasPrevistas')}"></div>
+    <div class="campo"><label for="o-pr">Presupuesto (€)</label><input id="o-pr" class="num" name="presupuesto" type="number" step="0.01" value="${val('presupuesto')}"></div></div>
+    <div class="campo"><label for="o-e">Estado</label><select id="o-e" name="estado">${Object.entries(ESTADOS_OBRA).map(([k, x]) => `<option value="${k}" ${(o.estado || 'planificada') === k ? 'selected' : ''}>${x[0]}</option>`).join('')}</select></div>
+    <div class="campo"><label for="o-n">Notas para el equipo</label><textarea id="o-n" name="notas" placeholder="Acceso al tejado, tipo de cubierta, llaves…">${val('notas')}</textarea></div>
+    <button class="btn btn-sol ancho" type="submit">${o.id ? 'Guardar cambios' : 'Crear obra'}</button><p class="error-form" role="alert"></p></form>`);
+  enviarForm(v, async d => {
+    await api('guardarObra', { obra: { ...d, id: o.id || uuid() } });
+    cerrarHoja(); toast(o.id ? 'Obra actualizada' : 'Obra creada'); setTimeout(render, 300);
+  });
+}
+
+/* ───────── Avisos ───────── */
+function itemAviso(a) {
+  return `<button class="item prio-${esc(a.prioridad)}" data-aviso="${esc(a.id)}">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div class="t">${esc(a.cliente)}</div>${chip(ESTADOS_AVISO, a.estado)}</div>
+    <div class="s">${esc(TIPOS_AVISO[a.tipo] || a.tipo)}${a.prioridad === 'urgente' || a.prioridad === 'alta' ? ', prioridad ' + PRIORIDADES[a.prioridad].toLowerCase() : ''}</div>
+    <div style="margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(a.descripcion)}</div>
+    <div class="pie"><span>${esc(a.numero)}</span><span>${a.asignadoNombre ? esc(a.asignadoNombre) : 'Sin asignar'}, ${fCorta(a.fecha)}</span></div></button>`;
+}
+async function vAvisos({ filtro = 'mios' } = {}) {
+  const lista = await api('listarAvisos', { filtro }, { cache: true });
+  const opciones = { mios: 'Míos', abiertos: esAdmin() ? 'Abiertos' : 'Sin asignar y míos', cerrados: 'Resueltos' };
+  app.innerHTML = cabecera('Avisos', 'Averías, mantenimientos y consultas', { extra: `<button class="btn btn-sol btn-peq" id="nuevo-aviso">Nuevo aviso</button>` }) +
+    `<div class="wrap"><div class="seg" role="group" aria-label="Filtro">${Object.entries(opciones).map(([k, t]) => `<button aria-pressed="${k === filtro}" data-filtro="${k}">${t}</button>`).join('')}</div>
+    ${lista.length ? `<div class="lista">${lista.map(itemAviso).join('')}</div>`
+      : `<div class="vacio">${filtro === 'mios' ? 'No tienes avisos asignados. Revisa la pestaña de avisos abiertos por si hay alguno sin dueño.' : 'No hay avisos en esta lista.'}</div>`}</div>`;
+  $$('[data-filtro]').forEach(b => b.onclick = () => ir('avisos', { filtro: b.dataset.filtro }, true));
+  $$('[data-aviso]').forEach(b => b.onclick = () => ir('aviso', { id: b.dataset.aviso }));
+  $('#nuevo-aviso').onclick = formAviso;
+}
+async function usuariosLista() {
+  if (!S.usuarios) S.usuarios = (await api('usuarios', {}, { cache: true })).filter(u => u.activo);
+  return S.usuarios;
+}
+async function formAviso() {
+  const users = esAdmin() ? await usuariosLista().catch(() => []) : [];
+  let obras = []; try { obras = await api('listarObras', {}, { cache: true }); } catch {}
+  const v = abrirHoja('Nuevo aviso', `<form>
+    <div class="campo"><label for="a-c">Cliente</label><input id="a-c" name="cliente" required list="a-clientes"><datalist id="a-clientes">${obras.map(o => `<option value="${esc(o.cliente)}">`).join('')}</datalist></div>
+    <div class="dos-campos"><div class="campo"><label for="a-t">Teléfono</label><input id="a-t" name="telefono" type="tel"></div>
+    <div class="campo"><label for="a-ti">Tipo</label><select id="a-ti" name="tipo">${Object.entries(TIPOS_AVISO).map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></div></div>
+    <div class="campo"><label for="a-d">Dirección</label><input id="a-d" name="direccion"></div>
+    <div class="campo"><label for="a-o">Instalación relacionada (opcional)</label><select id="a-o" name="obraId"><option value="">Ninguna</option>${obras.map(o => `<option value="${esc(o.id)}">${esc(o.cliente)} (${esc(o.codigo)})</option>`).join('')}</select></div>
+    <div class="campo"><label for="a-de">Qué ocurre</label><textarea id="a-de" name="descripcion" required placeholder="Por ejemplo: el inversor marca error de aislamiento desde esta mañana"></textarea></div>
+    <div class="campo"><label for="a-p">Prioridad</label><select id="a-p" name="prioridad">${Object.entries(PRIORIDADES).map(([k, t]) => `<option value="${k}" ${k === 'normal' ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    ${esAdmin() ? `<div class="campo"><label for="a-a">Asignar a</label><select id="a-a" name="asignadoA"><option value="">Sin asignar</option>${users.map(u => `<option value="${esc(u.id)}">${esc(u.nombre)}</option>`).join('')}</select></div>`
+      : `<label class="check"><input type="checkbox" name="paraMi" checked> Me lo quedo yo</label>`}
+    <button class="btn btn-sol ancho" type="submit">Crear aviso</button><p class="error-form" role="alert"></p></form>`, v => {
+      const c = $('#a-c', v);
+      c.onchange = () => { const o = obras.find(x => x.cliente === c.value); if (o) { $('#a-t', v).value ||= o.telefono || ''; $('#a-d', v).value ||= [o.direccion, o.municipio].filter(Boolean).join(', '); $('#a-o', v).value = o.id; } };
+    });
+  enviarForm(v, async d => {
+    const r = await api('crearAviso', { id: uuid(), aviso: { ...d, paraMi: !!d.paraMi } });
+    cerrarHoja(); toast('Aviso ' + r.numero + ' creado'); setTimeout(render, 300);
+  });
+}
+async function vAviso({ id }) {
+  const d = await api('aviso', { id }, { cache: true });
+  const a = d.aviso, mio = a.asignadoA === S.user.id, abierto = ['nuevo', 'asignado', 'en curso'].includes(a.estado);
+  let acciones = '';
+  if (abierto) {
+    if (!a.asignadoA) acciones += `<button class="btn btn-sol" data-acc="asignarme">Me lo quedo</button>`;
+    if ((mio || esAdmin()) && a.estado !== 'en curso' && a.asignadoA) acciones += `<button class="btn btn-oscuro" data-acc="en curso">Empezar</button>`;
+    if (mio || esAdmin()) acciones += `<button class="btn btn-sol" data-acc="resolver">Marcar resuelto</button>`;
+  }
+  if (esAdmin() && a.estado === 'resuelto') acciones += `<button class="btn btn-oscuro" data-acc="cerrado">Cerrar aviso</button>`;
+  app.innerHTML = cabecera(a.cliente, esc(a.numero) + ', ' + fHora(a.fecha), { volver: true, extra: chip(ESTADOS_AVISO, a.estado) }) + `<div class="wrap">
+    ${a.prioridad === 'urgente' && abierto ? '<div class="aviso-caja" style="margin-bottom:12px">Aviso urgente: el cliente puede estar sin producción.</div>' : ''}
+    ${acciones ? `<div class="grupo">${acciones}</div>` : ''}
+    <h2>Qué ocurre</h2><div class="caja pad texto-largo">${esc(a.descripcion)}</div>
+    <dl class="datos" style="margin-top:12px">
+      <div><dt>Tipo</dt><dd>${esc(TIPOS_AVISO[a.tipo] || a.tipo)}</dd></div>
+      <div><dt>Prioridad</dt><dd>${PRIORIDADES[a.prioridad] || a.prioridad}</dd></div>
+      <div><dt>Asignado a</dt><dd>${esc(a.asignadoNombre) || 'Nadie todavía'}</dd></div>
+      <div><dt>Entró por</dt><dd>${a.origen === 'formulario web' ? 'Formulario web' : esc(a.creadoPor || 'App')}</dd></div>
+      ${a.direccion ? `<div style="grid-column:1/-1"><dt>Dirección</dt><dd>${esc(a.direccion)}</dd></div>` : ''}
+      ${a.solucion ? `<div style="grid-column:1/-1"><dt>Solución${a.minutos ? ` (${hm(a.minutos)} h)` : ''}</dt><dd class="texto-largo" style="font-weight:400">${esc(a.solucion)}</dd></div>` : ''}
+    </dl>
+    <div class="contacto">
+      ${a.telefono ? `<a class="btn btn-linea" href="tel:${esc(String(a.telefono).replace(/\s/g, ''))}">Llamar</a>` : ''}
+      ${a.direccion ? `<a class="btn btn-linea" href="${ruta(a.direccion)}" target="_blank" rel="noopener">Cómo llegar</a>` : ''}
+      ${a.obraId ? `<button class="btn btn-linea" id="ver-obra">Ver instalación</button>` : ''}
+    </div>
+    ${esAdmin() && abierto ? `<div class="campo"><label for="reasignar">Asignar a</label><select id="reasignar"><option value="">Sin asignar</option></select></div>` : ''}
+    <h2>Fotos</h2>
+    ${d.fotos.length ? `<div class="fotos">${d.fotos.map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${miniatura(f.fileId)}" alt="${esc(f.categoria)}"><span>${esc(f.categoria)}</span></a>`).join('')}</div>` : ''}
+    <button class="btn btn-linea ancho" id="foto-aviso" style="margin-top:10px">Añadir foto</button>
+    <h2>Seguimiento</h2>
+    ${d.notas.length ? `<div class="caja">${d.notas.map(n => `<div class="nota"><div class="q">${fHora(n.fecha)}, ${esc(n.nombre)}</div><div class="texto-largo">${esc(n.texto)}</div></div>`).join('')}</div>` : '<div class="vacio">Sin notas todavía.</div>'}
+    <form id="f-nota" style="margin-top:10px"><div class="campo" style="margin-top:0"><label for="nota-t">Añadir nota</label><textarea id="nota-t" name="texto" required placeholder="Por ejemplo: pieza pedida, vuelvo el jueves"></textarea></div>
+      <button class="btn btn-azul ancho" type="submit" style="margin-top:10px">Guardar nota</button></form>
+  </div>`;
+  $$('[data-acc]').forEach(b => b.onclick = async () => {
+    const acc = b.dataset.acc;
+    if (acc === 'resolver') return formResolver(a);
+    b.disabled = true;
+    try {
+      await api('actualizarAviso', acc === 'asignarme' ? { id: a.id, asignarme: true } : { id: a.id, estado: acc });
+      toast(acc === 'asignarme' ? 'Aviso asignado a ti' : 'Aviso actualizado'); render();
+    } catch (e) { toast(e.message, true); b.disabled = false; }
+  });
+  const vo = $('#ver-obra'); if (vo) vo.onclick = () => ir('obra', { id: a.obraId });
+  $('#foto-aviso').onclick = () => formFoto(a.obraId ? { id: a.obraId } : null, a.id);
+  $('#f-nota').onsubmit = async e => {
+    e.preventDefault(); const t = $('#nota-t').value.trim(); if (!t) return;
+    try { await api('notaAviso', { id: uuid(), avisoId: a.id, texto: t }); toast('Nota guardada'); render(); } catch (x) { toast(x.message, true); }
+  };
+  const rs = $('#reasignar');
+  if (rs) {
+    const users = await usuariosLista().catch(() => []);
+    rs.innerHTML += users.map(u => `<option value="${esc(u.id)}" ${u.id === a.asignadoA ? 'selected' : ''}>${esc(u.nombre)}</option>`).join('');
+    rs.onchange = async () => { try { await api('actualizarAviso', { id: a.id, asignadoA: rs.value }); toast('Asignación cambiada'); render(); } catch (e) { toast(e.message, true); } };
+  }
+}
+function formResolver(a) {
+  const v = abrirHoja('Resolver ' + a.numero, `<form>
+    <div class="campo"><label for="r-s">Qué se ha hecho</label><textarea id="r-s" name="solucion" required placeholder="Por ejemplo: sustituido conector MC4 dañado en el string 2; producción normal"></textarea></div>
+    <div class="campo"><label for="r-m">Tiempo dedicado (minutos)</label><input id="r-m" class="num" type="number" name="minutos" min="0" step="5" inputmode="numeric"></div>
+    <button class="btn btn-sol ancho" type="submit">Marcar resuelto</button><p class="error-form" role="alert"></p></form>`);
+  enviarForm(v, async d => {
+    await api('actualizarAviso', { id: a.id, estado: 'resuelto', solucion: d.solucion, minutos: Number(d.minutos) || '' });
+    cerrarHoja(); toast('Aviso resuelto'); setTimeout(render, 300);
+  });
+}
+
+/* ───────── Ausencias ───────── */
+async function vAusencias({ mes } = {}) {
+  mes = mes || hoyISO().slice(0, 7);
+  const [mias, cal] = await Promise.all([api('misAusencias', {}, { cache: true }), api('calendarioAusencias', { mes }, { cache: true })]);
+  const r = mias.resumen;
+  const [y, m] = mes.split('-').map(Number);
+  const primero = new Date(y, m - 1, 1), diasMes = new Date(y, m, 0).getDate();
+  const hueco = (primero.getDay() + 6) % 7;
+  const prev = claveDia(new Date(y, m - 2, 1)).slice(0, 7), sig = claveDia(new Date(y, m, 1)).slice(0, 7);
+  let celdas = '';
+  for (let i = 0; i < hueco; i++) celdas += '<span></span>';
+  for (let dia = 1; dia <= diasMes; dia++) {
+    const k = `${y}-${pad(m)}-${pad(dia)}`, w = new Date(y, m - 1, dia).getDay();
+    const aqui = cal.filter(x => x.desde <= k && x.hasta >= k);
+    const mia = aqui.find(x => x.propio && x.estado === 'aprobada'), pend = aqui.find(x => x.propio && x.estado === 'pendiente');
+    const otros = aqui.filter(x => !x.propio);
+    celdas += `<button class="d ${w === 0 || w === 6 ? 'finde' : ''} ${k === hoyISO() ? 'hoy' : ''} ${mia ? 'mia' : pend ? 'pend' : ''}" data-dia="${k}" aria-label="${dia}${aqui.length ? ', ' + aqui.map(x => x.nombre).join(', ') : ''}">${dia}
+      ${otros.length ? `<span class="p">${otros.slice(0, 3).map(() => '<i></i>').join('')}</span>` : ''}</button>`;
+  }
+  const nombreMes = mayus(primero.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }));
+  app.innerHTML = cabecera('Ausencias', 'Vacaciones, permisos y bajas', { extra: `<button class="btn btn-sol btn-peq" id="pedir">Pedir días</button>` }) + `<div class="wrap">
+    <div class="resumen"><div class="dest"><b class="num">${r.disponibles}</b><span>días libres</span></div>
+      <div><b class="num">${r.aprobados}</b><span>aprobados</span></div><div><b class="num">${r.pendientes}</b><span>pendientes</span></div></div>
+    <p style="color:var(--gris);font-size:14px;margin:8px 0 0">Vacaciones de ${new Date().getFullYear()}: ${r.derecho} días laborables en total.</p>
+    <h2>Calendario</h2>
+    <div class="cal-cab"><button class="btn btn-linea btn-peq" data-mes="${prev}" aria-label="Mes anterior">‹</button><strong>${nombreMes}</strong><button class="btn btn-linea btn-peq" data-mes="${sig}" aria-label="Mes siguiente">›</button></div>
+    <div class="cal">${['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(x => `<span class="ds">${x}</span>`).join('')}${celdas}</div>
+    <div class="leyenda"><span><i style="background:var(--silicio)"></i>Tus días aprobados</span><span><i style="background:var(--sol-claro);border:2px dashed #B98500"></i>Pendientes</span><span><i style="background:var(--cielo);border-radius:50%"></i>Compañeros fuera</span></div>
+    <h2>Mis solicitudes</h2>
+    ${mias.lista.length ? `<div class="lista">${mias.lista.map(x => `<div class="item"><div style="display:flex;justify-content:space-between;gap:10px"><div class="t">${esc(TIPOS_AUSENCIA[x.tipo] || x.tipo)}</div>${chip(ESTADOS_AUSENCIA, x.estado)}</div>
+      <div class="s">${x.desde === x.hasta ? fLarga(x.desde) : fCorta(x.desde) + ' al ' + fCorta(x.hasta)}, ${x.dias} ${x.dias == 1 ? 'día laborable' : 'días laborables'}</div>
+      ${x.motivo ? `<div style="margin-top:4px">${esc(x.motivo)}</div>` : ''}</div>`).join('')}</div>`
+      : '<div class="vacio">No has pedido ningún día. Pulsa «Pedir días» para solicitar vacaciones o un permiso.</div>'}
+  </div>`;
+  $$('[data-mes]').forEach(b => b.onclick = () => ir('ausencias', { mes: b.dataset.mes }, true));
+  $$('[data-dia]').forEach(b => b.onclick = () => {
+    const k = b.dataset.dia, aqui = cal.filter(x => x.desde <= k && x.hasta >= k);
+    if (aqui.length) toast(fCorta(k) + ': ' + aqui.map(x => x.nombre + (x.estado === 'pendiente' ? ' (pendiente)' : '')).join(', '));
+  });
+  $('#pedir').onclick = formAusencia;
+}
+function formAusencia() {
+  const extra = {};
+  const v = abrirHoja('Pedir días', `<form>
+    <div class="campo"><label for="v-t">Tipo</label><select id="v-t" name="tipo" data-nofocus="1">${Object.entries(TIPOS_AUSENCIA).map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></div>
+    <div class="dos-campos"><div class="campo"><label for="v-d">Desde</label><input id="v-d" type="date" name="desde" required></div>
+    <div class="campo"><label for="v-h">Hasta</label><input id="v-h" type="date" name="hasta" required></div></div>
+    <p class="ayuda" id="v-n" style="color:var(--gris);margin:6px 0 0"></p>
+    <div class="campo"><label for="v-m">Motivo o comentario (opcional)</label><textarea id="v-m" name="motivo"></textarea></div>
+    <div class="campo" id="v-j" hidden><label>Justificante</label>${campoFoto('foto', 'Fotografiar justificante')}</div>
+    <button class="btn btn-sol ancho" type="submit">Enviar solicitud</button><p class="error-form" role="alert"></p></form>`, v => {
+      const t = $('#v-t', v), d = $('#v-d', v), h = $('#v-h', v);
+      const cuenta = () => {
+        if (!d.value || !h.value || h.value < d.value) return $('#v-n', v).textContent = '';
+        let n = 0; for (let x = aFecha(d.value); x <= aFecha(h.value); x.setDate(x.getDate() + 1)) if (x.getDay() % 6) n++;
+        $('#v-n', v).textContent = `${n} ${n === 1 ? 'día laborable' : 'días laborables'}`;
+      };
+      d.onchange = () => { if (!h.value || h.value < d.value) h.value = d.value; h.min = d.value; cuenta(); };
+      h.onchange = cuenta;
+      t.onchange = () => { $('#v-j', v).hidden = !['permiso', 'baja'].includes(t.value); };
+      montarFoto(v, extra);
+    });
+  enviarForm(v, async d => {
+    const r = await api('solicitarAusencia', { id: uuid(), ...d, foto: extra.foto || '' });
+    cerrarHoja(); toast(r.estado === 'aprobada' ? 'Baja registrada' : 'Solicitud enviada. Te avisaremos cuando se apruebe.'); setTimeout(render, 300);
+  });
+}
+
+/* ───────── Panel / Más ───────── */
+async function vMas() {
+  if (!esAdmin()) {
+    const f = LS.get('fallidos', []);
+    app.innerHTML = cabecera(S.user.nombre, esc(S.empresa)) + `<div class="wrap">
+      <div class="menu"><button id="m-hist">Mi registro de jornada <small>›</small></button><button id="m-pin">Cambiar PIN <small>›</small></button>
+      <button id="m-salir">Cerrar sesión <small>›</small></button></div>
+      ${f.length ? `<h2>Registros que no se pudieron enviar</h2><div class="caja">${f.map(x => `<div class="nota"><b>${esc(x.action)}</b><div class="q">${esc(x.error)}</div></div>`).join('')}</div><button class="btn btn-linea ancho" id="m-limpiar" style="margin-top:10px">Borrar esta lista</button>` : ''}
+      <p style="color:var(--gris);font-size:14px;margin-top:24px">geSolar. Si tienes un problema con la app, avisa a la oficina.</p></div>`;
+    $('#m-hist').onclick = () => ir('historial'); $('#m-pin').onclick = formPin; $('#m-salir').onclick = () => salir();
+    const l = $('#m-limpiar'); if (l) l.onclick = () => { LS.del('fallidos'); render(); };
+    return;
+  }
+  const p = await api('panel', {}, { cache: true });
+  insignias({ avisosMios: Number($('#badge-avisos').textContent) || 0, pendientes: p.ausencias.length });
+  app.innerHTML = cabecera('Panel', esc(S.empresa)) + `<div class="wrap">
+    <div class="cifras">
+      <div><b class="num">${p.trabajando.length}<small style="font-size:20px;color:var(--gris)"> / ${p.plantilla}</small></b><span>fichados ahora</span></div>
+      <button data-ir="obras"><b class="num">${p.obrasEnCurso}</b><span>obras en curso</span></button>
+      <button data-ir="avisos" class="${p.avisos.urgentes ? 'alerta' : ''}"><b class="num">${p.avisos.abiertos}</b><span>avisos abiertos${p.avisos.urgentes ? `, ${p.avisos.urgentes} ${p.avisos.urgentes === 1 ? 'urgente' : 'urgentes'}` : ''}</span></button>
+      <div class="${p.avisos.sinAsignar ? 'alerta' : ''}"><b class="num">${p.avisos.sinAsignar}</b><span>avisos sin asignar</span></div>
+    </div>
+    ${p.alertas.length || p.vencimientos.length ? `<h2>Revisar</h2><div class="lista">${p.alertas.map(a => `<div class="aviso-caja"><b>${esc(a.nombre)}</b>: ${esc(a.texto)}.</div>`).join('')}
+      ${p.vencimientos.map(v => `<button class="aviso-caja" data-ir="furgonetas" style="border:0;text-align:left;width:100%;${v.vencido ? '' : 'background:var(--naranja-claro);color:#7A3E05'}"><b>${esc(v.matricula)}</b>${v.modelo ? ' (' + esc(v.modelo) + ')' : ''}: ${v.que} ${v.vencido ? 'caducada desde el' : 'caduca el'} ${fCorta(v.fecha)}.</button>`).join('')}</div>` : ''}
+    <h2>Ausencias por aprobar</h2>
+    ${p.ausencias.length ? `<div class="lista">${p.ausencias.map(x => `<div class="item"><div class="t">${esc(x.nombre)}</div>
+      <div class="s">${esc(TIPOS_AUSENCIA[x.tipo] || x.tipo)}: ${fCorta(x.desde)}${x.hasta !== x.desde ? ' al ' + fCorta(x.hasta) : ''}, ${x.dias} ${x.dias == 1 ? 'día' : 'días'}</div>
+      ${x.motivo ? `<div style="margin-top:4px">${esc(x.motivo)}</div>` : ''}${x.adjuntoUrl ? `<a href="${esc(x.adjuntoUrl)}" target="_blank" rel="noopener">Ver justificante</a>` : ''}
+      <div class="grupo" style="margin-top:12px"><button class="btn btn-linea btn-peq" data-resolver="${esc(x.id)}" data-estado="rechazada">Rechazar</button><button class="btn btn-oscuro btn-peq" data-resolver="${esc(x.id)}" data-estado="aprobada">Aprobar</button></div></div>`).join('')}</div>`
+      : '<div class="vacio">No hay solicitudes pendientes.</div>'}
+    <h2>Quién está trabajando</h2>
+    ${p.trabajando.length ? `<div class="caja">${p.trabajando.map(t => `<div class="fila-fichaje"><div class="h num">${hora(t.desde)}</div>
+      <div class="d"><b>${esc(t.nombre)}</b> ${t.estado === 'en pausa' ? '<span class="chip sol">En pausa</span>' : ''}<div class="g">${t.obra ? esc(t.obra) + '. ' : ''}${t.lat ? `<a href="${mapa(t.lat, t.lng)}" target="_blank" rel="noopener">Ver en el mapa</a>` : 'Sin ubicación'}</div></div></div>`).join('')}</div>`
+      : '<div class="vacio">Nadie ha fichado todavía.</div>'}
+    <h2>Gestión</h2>
+    <div class="menu">
+      <button data-ir="informe">Informe mensual de jornada <small>Para inspección y nóminas ›</small></button>
+      <button data-ir="usuarios">Equipo y accesos <small>›</small></button>
+      <button data-ir="furgonetas">Furgonetas <small>${p.furgonetasLibres ? p.furgonetasLibres + (p.furgonetasLibres === 1 ? ' libre' : ' libres') + ' ' : ''}›</small></button>
+      <a href="${esc(API_URL)}" target="_blank" rel="noopener">Formulario de averías para clientes <small>Abrir ›</small></a>
+      <button id="m-hist">Mi registro de jornada <small>›</small></button>
+      <button id="m-pin">Cambiar mi PIN <small>›</small></button>
+      <button id="m-salir">Cerrar sesión <small>›</small></button>
+    </div></div>`;
+  $$('[data-ir]').forEach(b => b.onclick = () => ir(b.dataset.ir));
+  $$('[data-resolver]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try { await api('resolverAusencia', { id: b.dataset.resolver, estado: b.dataset.estado }); toast(b.dataset.estado === 'aprobada' ? 'Ausencia aprobada' : 'Ausencia rechazada'); render(); }
+    catch (e) { toast(e.message, true); b.disabled = false; }
+  });
+  $('#m-hist').onclick = () => ir('historial'); $('#m-pin').onclick = formPin; $('#m-salir').onclick = () => salir();
+}
+function formPin() {
+  const v = abrirHoja('Cambiar PIN', `<form>
+    <div class="campo"><label for="pin-a">PIN actual</label><input id="pin-a" class="pin num" type="password" name="actual" inputmode="numeric" maxlength="8" required></div>
+    <div class="campo"><label for="pin-n">PIN nuevo (4 a 8 cifras)</label><input id="pin-n" class="pin num" type="password" name="nuevo" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" required></div>
+    <button class="btn btn-sol ancho" type="submit">Cambiar PIN</button><p class="error-form" role="alert"></p></form>`);
+  enviarForm(v, async d => { await api('cambiarPin', d); cerrarHoja(); toast('PIN cambiado'); });
+}
+async function vInforme({ mes } = {}) {
+  mes = mes || hoyISO().slice(0, 7);
+  const d = await api('informeJornada', { mes });
+  const total = d.usuarios.reduce((s, u) => s + u.total, 0);
+  app.innerHTML = cabecera('Informe de jornada', 'Registro horario por trabajador', { volver: true }) + `<div class="wrap">
+    <div class="dos-campos" style="align-items:end"><div class="campo" style="margin-top:0"><label for="i-m">Mes</label><input id="i-m" type="month" value="${mes}"></div>
+    <button class="btn btn-sol" id="i-csv" ${d.usuarios.length ? '' : 'disabled'}>Descargar CSV</button></div>
+    <p style="color:var(--gris)">Total del mes: <b class="num">${hm(total)} h</b> entre ${d.usuarios.length} ${d.usuarios.length === 1 ? 'persona' : 'personas'}.</p>
+    ${d.usuarios.length ? d.usuarios.map(u => `<h2>${esc(u.nombre)} <span class="num" style="color:var(--gris);font-weight:600">${hm(u.total)} h</span></h2>
+      <div class="scroll-x"><table class="tabla"><thead><tr><th>Día</th><th>Entrada</th><th>Salida</th><th class="r">Pausas</th><th class="r">Horas</th></tr></thead><tbody>
+      ${u.dias.map(j => `<tr><td>${fCorta(j.fecha)}</td><td>${hora(j.entrada)}</td><td>${j.salida ? hora(j.salida) : '<span class="chip rojo">Sin salida</span>'}</td><td class="r">${j.pausas}</td><td class="r num"><b>${hm(j.minutos)}</b></td></tr>`).join('')}
+      </tbody></table></div>`).join('') : '<div class="vacio">No hay fichajes en este mes.</div>'}
+  </div>`;
+  $('#i-m').onchange = e => ir('informe', { mes: e.target.value }, true);
+  $('#i-csv').onclick = () => {
+    const filas = [['Trabajador', 'Fecha', 'Entrada', 'Salida', 'Pausas', 'Horas trabajadas']];
+    d.usuarios.forEach(u => u.dias.forEach(j => filas.push([u.nombre, j.fecha, hora(j.entrada), j.salida ? hora(j.salida) : 'SIN SALIDA', j.pausas, (j.minutos / 60).toFixed(2).replace('.', ',')])));
+    const csv = '\ufeff' + filas.map(f => f.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `registro-jornada-${mes}.csv`; document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+async function vUsuarios() {
+  S.usuarios = null;
+  const lista = await api('usuarios');
+  app.innerHTML = cabecera('Equipo', 'Personas con acceso a la app', { volver: true, extra: `<button class="btn btn-sol btn-peq" id="u-nuevo">Añadir persona</button>` }) +
+    `<div class="wrap"><div class="lista">${lista.map(u => `<button class="item" data-u="${esc(u.id)}"><div style="display:flex;justify-content:space-between;gap:10px"><div class="t">${esc(u.nombre)}</div>
+      ${u.activo ? (u.rol === 'admin' ? '<span class="chip oscuro">Administrador</span>' : '<span class="chip">Operario</span>') : '<span class="chip rojo">Sin acceso</span>'}</div>
+      <div class="s">Usuario: ${esc(u.usuario)}, ${u.diasVacaciones || 22} días de vacaciones</div>
+      <div class="s">${u.furgoneta ? 'Furgoneta ' + esc(u.furgoneta) : 'Sin furgoneta'}</div></button>`).join('')}</div></div>`;
+  $('#u-nuevo').onclick = () => formUsuario();
+  $$('[data-u]').forEach(b => b.onclick = () => formUsuario(lista.find(u => u.id === b.dataset.u)));
+}
+function formUsuario(u = {}) {
+  const v = abrirHoja(u.id ? 'Editar ' + u.nombre : 'Añadir persona', `<form>
+    <div class="campo"><label for="u-n">Nombre y apellidos</label><input id="u-n" name="nombre" required value="${esc(u.nombre || '')}"></div>
+    <div class="dos-campos"><div class="campo"><label for="u-u">Usuario</label><input id="u-u" name="usuario" autocapitalize="none" required value="${esc(u.usuario || '')}" placeholder="jordi.p"></div>
+    <div class="campo"><label for="u-p">${u.id ? 'PIN nuevo' : 'PIN'}</label><input id="u-p" class="num" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" ${u.id ? 'placeholder="Sin cambios"' : 'required'}></div></div>
+    <div class="dos-campos"><div class="campo"><label for="u-r">Rol</label><select id="u-r" name="rol"><option value="operario">Operario</option><option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option></select></div>
+    <div class="campo"><label for="u-v">Días de vacaciones</label><input id="u-v" class="num" name="diasVacaciones" type="number" min="0" value="${u.diasVacaciones || 22}"></div></div>
+    <div class="campo"><label for="u-t">Teléfono</label><input id="u-t" name="telefono" type="tel" value="${esc(u.telefono || '')}"></div>
+    <label class="check"><input type="checkbox" name="activo" ${u.id && !u.activo ? '' : 'checked'}> Puede entrar en la app</label>
+    <button class="btn btn-sol ancho" type="submit">${u.id ? 'Guardar cambios' : 'Añadir persona'}</button><p class="error-form" role="alert"></p></form>`);
+  enviarForm(v, async d => {
+    await api('guardarUsuario', { usuario: { ...d, id: u.id || '', activo: !!d.activo } });
+    cerrarHoja(); toast(u.id ? 'Cambios guardados' : 'Persona añadida. Pásale su usuario y PIN.'); S.usuarios = null; setTimeout(render, 300);
+  });
+}
+
+/* ───────── Furgonetas ───────── */
+function estadoFecha(f, que) {
+  if (!f) return '';
+  const dias = Math.round((aFecha(f) - aFecha(hoyISO())) / 864e5);
+  const cls = dias < 0 ? 'rojo' : dias <= 30 ? 'naranja' : '';
+  return `<span class="chip ${cls}">${que} ${dias < 0 ? 'caducada' : fCorta(f)}</span>`;
+}
+function placa(m) { return `<div class="placa" aria-label="Matrícula ${esc(m)}"><i>E</i><span>${esc(String(m).replace(/^(\d{4})([A-Z]{3})$/, '$1 $2'))}</span></div>`; }
+function tarjetaFurgo(f, conKm = false) {
+  return `<div class="furgo">${placa(f.matricula)}${conKm ? `<button class="btn btn-linea btn-peq" data-km>Anotar km</button>` : '<span></span>'}<div class="d"><b>${esc(f.modelo || 'Furgoneta')}${f.alias ? ' (' + esc(f.alias) + ')' : ''}</b>
+    <small>${f.km !== '' && f.km != null ? `<span class="num">${Number(f.km).toLocaleString('es-ES')}</span> km${f.kmFecha ? ', anotados el ' + fCorta(f.kmFecha) : ''}` : 'Sin kilómetros anotados'}</small>
+    <div class="venc">${estadoFecha(f.itv, 'ITV')}${estadoFecha(f.seguro, 'Seguro')}${estadoFecha(f.revision, 'Revisión')}</div></div></div>`;
+}
+function formKm(f) {
+  const v = abrirHoja('Kilómetros de ' + f.matricula, `<form>
+    <div class="campo"><label for="k-k">Kilómetros que marca ahora</label><input id="k-k" class="num" type="number" name="km" min="0" step="1" inputmode="numeric" required placeholder="${esc(f.km || '')}"></div>
+    ${f.km ? `<p class="ayuda" style="color:var(--gris);margin:6px 0 0">Último dato: ${Number(f.km).toLocaleString('es-ES')} km</p>` : ''}
+    <button class="btn btn-sol ancho" type="submit">Guardar kilómetros</button><p class="error-form" role="alert"></p></form>`);
+  enviarForm(v, async d => { await api('actualizarKm', { id: f.id, km: Number(d.km) }); cerrarHoja(); toast('Kilómetros guardados'); setTimeout(render, 300); });
+}
+async function vFurgonetas() {
+  const [lista, users] = await Promise.all([api('furgonetas', {}, { cache: true }), usuariosLista().catch(() => [])]);
+  S.flota = lista;
+  const activas = lista.filter(f => f.activa);
+  app.innerHTML = cabecera('Furgonetas', `${activas.length} en servicio, ${activas.filter(f => !f.asignadoA).length} sin asignar`, { volver: true, extra: `<button class="btn btn-sol btn-peq" id="f-nueva">Añadir furgoneta</button>` }) +
+    `<div class="wrap">${lista.length ? `<div class="lista">${lista.map(f => `<button class="item" data-f="${esc(f.id)}" style="${f.activa ? '' : 'opacity:.6'}">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">${placa(f.matricula)}
+        ${!f.activa ? '<span class="chip">Fuera de servicio</span>' : f.asignadoA ? `<span class="chip oscuro">${esc(f.asignadoNombre)}</span>` : '<span class="chip sol">Sin asignar</span>'}</div>
+      <div class="t" style="margin-top:10px">${esc(f.modelo || 'Furgoneta')}${f.alias ? ' (' + esc(f.alias) + ')' : ''}</div>
+      <div class="s">${f.km !== '' && f.km != null ? Number(f.km).toLocaleString('es-ES') + ' km' : 'Sin kilómetros anotados'}</div>
+      <div class="venc">${estadoFecha(f.itv, 'ITV')}${estadoFecha(f.seguro, 'Seguro')}${estadoFecha(f.revision, 'Revisión')}</div></button>`).join('')}</div>`
+      : '<div class="vacio">Todavía no hay furgonetas. Añádelas con su matrícula y asígnalas a cada trabajador.<br><button class="btn btn-azul" id="f-nueva-2">Añadir la primera</button></div>'}</div>`;
+  [$('#f-nueva'), $('#f-nueva-2')].forEach(b => b && (b.onclick = () => formFurgoneta({}, users)));
+  $$('[data-f]').forEach(b => b.onclick = () => formFurgoneta(lista.find(f => f.id === b.dataset.f), users));
+}
+function formFurgoneta(f, users) {
+  const val = k => esc(f[k] ?? '');
+  const v = abrirHoja(f.id ? 'Furgoneta ' + f.matricula : 'Añadir furgoneta', `<form>
+    <div class="dos-campos"><div class="campo"><label for="fu-m">Matrícula</label><input id="fu-m" name="matricula" required value="${val('matricula')}" placeholder="1234 ABC" autocapitalize="characters" style="text-transform:uppercase"></div>
+    <div class="campo"><label for="fu-a">Nombre corto</label><input id="fu-a" name="alias" value="${val('alias')}" placeholder="La blanca"></div></div>
+    <div class="campo"><label for="fu-mo">Marca y modelo</label><input id="fu-mo" name="modelo" value="${val('modelo')}" placeholder="Renault Trafic"></div>
+    <div class="campo"><label for="fu-as">Asignada a</label><select id="fu-as" name="asignadoA"><option value="">Nadie (queda libre en la nave)</option>
+      ${users.map(u => `<option value="${esc(u.id)}" ${u.id === f.asignadoA ? 'selected' : ''}>${esc(u.nombre)}${u.furgoneta && u.furgoneta !== f.matricula ? ' (ya lleva ' + esc(u.furgoneta) + ')' : ''}</option>`).join('')}</select>
+      <p class="ayuda">Si la persona ya tenía otra furgoneta, esa queda libre.</p></div>
+    <div class="campo"><label for="fu-k">Kilómetros</label><input id="fu-k" class="num" type="number" name="km" min="0" inputmode="numeric" value="${val('km')}"></div>
+    <div class="dos-campos"><div class="campo"><label for="fu-i">ITV hasta</label><input id="fu-i" type="date" name="itv" value="${val('itv')}"></div>
+    <div class="campo"><label for="fu-s">Seguro hasta</label><input id="fu-s" type="date" name="seguro" value="${val('seguro')}"></div></div>
+    <div class="campo"><label for="fu-r">Próxima revisión</label><input id="fu-r" type="date" name="revision" value="${val('revision')}"></div>
+    <div class="campo"><label for="fu-n">Notas</label><textarea id="fu-n" name="notas" placeholder="Material que lleva, baca, escalera, llaves de repuesto…">${val('notas')}</textarea></div>
+    <label class="check"><input type="checkbox" name="activa" ${f.id && !f.activa ? '' : 'checked'}> En servicio</label>
+    <button class="btn btn-sol ancho" type="submit">${f.id ? 'Guardar cambios' : 'Añadir furgoneta'}</button><p class="error-form" role="alert"></p></form>
+    ${f.historial && f.historial.length ? `<h2>Quién la ha llevado</h2><div class="caja">${f.historial.map(h => `<div class="nota"><b>${esc(h.nombre)}</b>
+      <div class="q">Desde el ${fCorta(h.desde)}${h.hasta ? ' hasta el ' + fCorta(h.hasta) : ', ahora'}${h.kmInicio !== '' && h.kmInicio != null ? `, ${Number(h.kmInicio).toLocaleString('es-ES')} km${h.kmFin ? ' a ' + Number(h.kmFin).toLocaleString('es-ES') + ' km' : ''}` : ''}</div></div>`).join('')}</div>` : ''}`);
+  enviarForm(v, async d => {
+    await api('guardarFurgoneta', { furgoneta: { ...d, id: f.id || uuid(), activa: !!d.activa } });
+    cerrarHoja(); S.usuarios = null; toast(f.id ? 'Furgoneta actualizada' : 'Furgoneta añadida'); setTimeout(render, 300);
+  });
+}
+
+/* ───────── Arranque ───────── */
+history.replaceState({ vista: 'jornada', params: {} }, '');
+pintarRed();
+render();
+vaciarCola();
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
