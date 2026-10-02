@@ -1,5 +1,5 @@
 // Service worker: la app abre sin cobertura (tejados, naves, zonas rurales)
-const VERSION = 'gesolar-v3';
+const VERSION = 'gesolar-v4';
 const BASE = ['./', './index.html', './config.js', './manifest.json', './logo.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
